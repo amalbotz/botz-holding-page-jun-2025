@@ -1,0 +1,30 @@
+.cursor {
+  position: fixed;
+  width: 30px;
+  height: 30px;
+  pointer-events: none; // Makes sure the cursor doesn't interfere with clicking
+  transform: translate(-50%, -50%); // Centers the crosshair on the cursor
+  z-index: 9999; // Ensures it's above other elements
+  top: 0;
+  left: 0;
+  margin-left: -15px;
+  margin-top: -15px;
+}
+
+.horizontal {
+  position: absolute;
+  width: 100%;
+  height: 1px;
+  background-color: black;
+  top: 50%;
+  left: 0;
+}
+
+.vertical {
+  position: absolute;
+  width: 1px;
+  height: 100%;
+  background-color: black;
+  left: 50%;
+  top: 0;
+}
