@@ -1,7 +1,8 @@
 import vertexShader from "./shaders/vert.glsl?raw";
 import fragmentShader from "./shaders/frag.glsl?raw";
 import titleMap from "./title-map.png";
-import backgroundMap from "./uv.png";
+import backgroundMap from "./background.png";
+import backgroundVideo from "./background.mp4";
 import {
   type BufferInfo,
   type ProgramInfo,
@@ -14,6 +15,7 @@ import {
   setUniforms,
   resizeCanvasToDisplaySize,
   createTextureAsync,
+  setTextureFromElement,
 } from "twgl.js";
 
 class TitleRenderer {
@@ -34,8 +36,13 @@ class TitleRenderer {
       u_timescale: 0.3,
       u_noise_scale: 1,
       u_resolution: [2200, 880], // resolution of the image map
+      u_background_resolution: [16, 9],
       u_opacity: 1,
       u_map_wordmark: createTexture(this.gl, {
+        minMag: gl.LINEAR,
+        src: [0, 0, 0, 0],
+      }),
+      u_map_background: createTexture(this.gl, {
         minMag: gl.LINEAR,
         src: [0, 0, 0, 0],
       }),
@@ -49,6 +56,18 @@ class TitleRenderer {
   }
 
   private async createTextures() {
+    const video = document.createElement("video");
+    video.muted = true;
+    video.autoplay = true;
+    video.loop = true;
+    video.src = backgroundVideo;
+    video.play();
+    video.style.width = "1px";
+    video.style.height = "1px";
+    video.style.pointerEvents = "none";
+    video.style.opacity = "0";
+    document.body.appendChild(video);
+
     const [wordmark, background] = await Promise.all([
       await createTextureAsync(this.gl, {
         src: titleMap,
@@ -63,6 +82,21 @@ class TitleRenderer {
     this.uniforms.u_map_wordmark = wordmark;
     this.uniforms.u_map_background = background;
     this.loaded = true;
+
+    const onVideoFrame = () => {
+      setTextureFromElement(
+        this.gl,
+        this.uniforms.u_map_background.texture,
+        video,
+        {
+          minMag: this.gl.LINEAR,
+          flipY: 1,
+        }
+      );
+      video.requestVideoFrameCallback(onVideoFrame);
+    };
+
+    video.requestVideoFrameCallback(onVideoFrame);
   }
 
   public onMouseMove([x, y]: [number, number]) {
