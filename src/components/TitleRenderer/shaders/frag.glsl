@@ -158,10 +158,13 @@ void main() {
 	dist_to_mouse = 1.0 - dist_to_mouse;
 
 	vec2 noise_texcoord = vec2(v_texcoord.x, v_texcoord.y / aspect_ratio);
-	float noise_value = 1.0 - noise(vec3(noise_texcoord * 8.0, u_time * 0.001));
-	noise_value = sineOut(noise_value);
+	float noise_value = noise(vec3(noise_texcoord * 6.0, u_time * 0.001));
+	noise_value = sineIn(noise_value);
 
-	dist_to_mouse = dist_to_mouse * (0.5 + noise_value * 0.5);
+	dist_to_mouse = dist_to_mouse * (0.75 + noise_value * 0.5);
+
+	// gl_FragColor = vec4(dist_to_mouse,dist_to_mouse,dist_to_mouse,1.0);
+	// return;
 
 	gl_FragColor = vec4(noise_value,noise_value,noise_value, 1.0);
 	// return;
@@ -172,22 +175,6 @@ void main() {
 	threshold = step(0.5, threshold);
 
 	gl_FragColor = vec4(u_color, threshold);
+  // gl_FragColor = vec4(u_color,1.0);
 
-  // float aspect_ratio = u_resolution.x / u_resolution.y;
-
-  
-  
-	// float noise_val_two = 1.0 - cellular(noise_texcoord * vec2(5.0 * u_noise_scale * 2.5) + vec2(u_time * u_timescale * 0.00005, u_time * 0.0001)).x;
-
-	// float noise_val = (sineIn(noise_val_one) * 0.6) + (quarticIn(noise_val_two) * 0.4) + (dist_to_mouse * 0.4);
-
-
-  // // noise_val = exponentialIn(noise_val);
-	// noise_val = noise_val - 0.5;
-  // noise_val *= u_opacity * 0.66;
-
-  // float threshold = clamp(texel_wordmark.r + (noise_val * 0.8), 0.0, 1.0) + ((1.0 - u_opacity) * -0.75);
-  // threshold = step(0.45, threshold);
-
-  // gl_FragColor = vec4(u_color,threshold);
 }

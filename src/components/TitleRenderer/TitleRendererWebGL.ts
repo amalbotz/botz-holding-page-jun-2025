@@ -29,7 +29,7 @@ class TitleRenderer {
   private startTime = Date.now();
   private programInfo: ProgramInfo;
   private bufferInfo: BufferInfo;
-  private _width = 0.66;
+  private _width = 0.66666;
   private targetMousePosition = [-1, -1];
   private gl: WebGL2RenderingContext;
   private img: HTMLImageElement;
@@ -43,14 +43,14 @@ class TitleRenderer {
       u_time: this.startTime,
       u_timescale: 0.3,
       u_noise_scale: 1,
-      u_resolution: [605, 172],
+      u_resolution: [2200, 880],
       u_opacity: 1,
       u_map_wordmark: createTexture(this.gl, {
         minMag: gl.LINEAR,
         src: [0, 0, 0, 0],
       }),
       u_mouse_position: [-1, -1],
-      u_color: [1, 1, 1],
+      u_color: [1, 0, 0],
     };
     this.programInfo = createProgramInfo(gl, [vertexShader, fragmentShader]);
     this.bufferInfo = primitives.createXYQuadBufferInfo(gl);
@@ -62,22 +62,17 @@ class TitleRenderer {
   public onMouseMove([x, y]: [number, number]) {
     const aspectRatio =
       this.uniforms.u_resolution[0] / this.uniforms.u_resolution[1];
-    const height = this.width / aspectRatio;
 
-    const paddingX = 1 - this.width;
-    const paddingY = 1 - height;
+    const displayWidth = window.innerWidth * this.width;
+    const displayHeight = displayWidth / aspectRatio;
 
-    const _x = convertToRange(
-      x,
-      [0, window.innerWidth],
-      [-paddingX, 1 + paddingX]
-    );
-    const _y = convertToRange(
-      y,
-      [window.innerHeight, 0],
-      [-paddingY, 1 + paddingY]
-    );
-    this.targetMousePosition = [_x, _y];
+    const paddingX = (window.innerWidth - displayWidth) * 0.5;
+    const paddingY = (window.innerHeight - displayHeight) * 0.5;
+
+    this.targetMousePosition = [
+      (x - paddingX) / displayWidth,
+      1 - (y - paddingY) / displayHeight,
+    ];
   }
 
   private createTexture() {
@@ -135,12 +130,9 @@ class TitleRenderer {
     this.uniforms.u_mouse_position[1] +=
       (this.targetMousePosition[1] - this.uniforms.u_mouse_position[1]) * 0.02;
 
-    this.gl.viewport(
-      (this.gl.canvas.width - displayWidth) * 0.5,
-      (this.gl.canvas.height - displayHeight) * 0.525,
-      displayWidth,
-      displayHeight
-    );
+    const paddingX = (this.gl.canvas.width - displayWidth) * 0.5;
+    const paddingY = (this.gl.canvas.height - displayHeight) * 0.5;
+    this.gl.viewport(paddingX, paddingY, displayWidth, displayHeight);
     drawBufferInfo(this.gl, this.bufferInfo);
   }
 }
