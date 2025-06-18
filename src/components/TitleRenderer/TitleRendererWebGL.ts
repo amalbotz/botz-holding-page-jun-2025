@@ -1,6 +1,7 @@
 import vertexShader from "./shaders/vert.glsl?raw";
 import fragmentShader from "./shaders/frag.glsl?raw";
 import titleMap from "./title-map.png";
+import backgroundMap from "./uv.png";
 import {
   type BufferInfo,
   type ProgramInfo,
@@ -12,17 +13,8 @@ import {
   setBuffersAndAttributes,
   setUniforms,
   resizeCanvasToDisplaySize,
+  createTextureAsync,
 } from "twgl.js";
-
-const convertToRange = (
-  value: number,
-  range: [number, number],
-  targetRange: [number, number]
-) => {
-  const [min, max] = range;
-  const [targetMin, targetMax] = targetRange;
-  return ((value - min) / (max - min)) * (targetMax - targetMin) + targetMin;
-};
 
 class TitleRenderer {
   private uniforms: { [key: string]: any };
@@ -32,18 +24,16 @@ class TitleRenderer {
   private _width = 0.66666;
   private targetMousePosition = [-1, -1];
   private gl: WebGL2RenderingContext;
-  private img: HTMLImageElement;
+  private loaded = false;
+  // private img: HTMLImageElement;
 
   constructor(gl: WebGL2RenderingContext) {
     this.gl = gl;
-    this.img = new Image();
-
-    this.createTexture = this.createTexture.bind(this);
     this.uniforms = {
       u_time: this.startTime,
       u_timescale: 0.3,
       u_noise_scale: 1,
-      u_resolution: [2200, 880],
+      u_resolution: [2200, 880], // resolution of the image map
       u_opacity: 1,
       u_map_wordmark: createTexture(this.gl, {
         minMag: gl.LINEAR,
@@ -55,8 +45,24 @@ class TitleRenderer {
     this.programInfo = createProgramInfo(gl, [vertexShader, fragmentShader]);
     this.bufferInfo = primitives.createXYQuadBufferInfo(gl);
 
-    this.img.addEventListener("load", this.createTexture);
-    this.img.src = titleMap;
+    this.createTextures();
+  }
+
+  private async createTextures() {
+    const [wordmark, background] = await Promise.all([
+      await createTextureAsync(this.gl, {
+        src: titleMap,
+        flipY: 1,
+      }),
+      await createTextureAsync(this.gl, {
+        src: backgroundMap,
+        flipY: 1,
+      }),
+    ]);
+
+    this.uniforms.u_map_wordmark = wordmark;
+    this.uniforms.u_map_background = background;
+    this.loaded = true;
   }
 
   public onMouseMove([x, y]: [number, number]) {
@@ -74,16 +80,6 @@ class TitleRenderer {
       1 - (y - paddingY) / displayHeight,
     ];
   }
-
-  private createTexture() {
-    this.uniforms.u_resolution = [this.img.width, this.img.height];
-    this.uniforms.u_map_wordmark = createTexture(this.gl, {
-      minMag: this.gl.LINEAR,
-      src: this.img,
-      flipY: 1,
-    });
-  }
-
   public set color(color: [number, number, number]) {
     this.uniforms.u_color = color;
   }
@@ -110,6 +106,7 @@ class TitleRenderer {
 
   public render() {
     this.uniforms.u_time = Date.now() - this.startTime;
+    if (!this.loaded) return;
 
     const aspectRatio =
       this.uniforms.u_resolution[0] / this.uniforms.u_resolution[1];
