@@ -8,11 +8,11 @@ interface BackgroundGridProps {
 const BackgroundGrid = ({ maxSpeed = 20 }: BackgroundGridProps) => {
   const bgRef = useRef<HTMLDivElement>(null);
   const positionRef = useRef({ x: 0, y: 0 });
-  const directionRef = useRef({ x: 1, y: 1 }); // Direction of movement
+  const directionRef = useRef({ x: 0.5, y: 0.5 }); // Direction of movement
   const lastTimeRef = useRef<number>(0);
   const mousePositionRef = useRef({ x: 0, y: 0 });
   const targetMousePositionRef = useRef({ x: 0, y: 0 });
-  const easingFactor = 0.01; // Lower = smoother/slower easing, higher = faster response
+  const easingFactor = 0.015; // Lower = smoother/slower easing, higher = faster response
 
   useEffect(() => {
     const handlePointerMove = (event: PointerEvent) => {

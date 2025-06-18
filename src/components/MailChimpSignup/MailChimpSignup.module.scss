@@ -1,0 +1,70 @@
+@import "../../_vars.scss";
+
+.root {
+  display: flex;
+  flex-direction: column;
+  width: 100%;
+}
+
+.root form {
+  display: flex;
+  flex-direction: column;
+  gap: 0.4375rem;
+}
+
+.root input {
+  background-color: rgba(255, 255, 255, 0.2);
+  border-radius: 0.25rem;
+  border: none;
+  padding: 0 1rem;
+  height: 1.9375rem;
+  color: #fff;
+  @include typo--large;
+  line-height: 1em;
+  width: 100%;
+}
+
+.root input:last-of-type {
+  margin-bottom: 1rem;
+}
+.root input::placeholder {
+  color: rgba(255, 255, 255, 0.6);
+  @include typo--body;
+}
+
+.root input:focus {
+  outline: 1px solid #fff;
+  outline-offset: 0;
+}
+
+.root button {
+  @include typo--large;
+  background-color: transparent;
+  color: #fff;
+  padding: 0;
+  align-self: flex-start;
+  cursor: pointer;
+}
+
+.root button:hover {
+  background-color: rgba(255, 255, 255, 0.1);
+}
+
+.root button:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.message {
+  margin-top: 1rem;
+  padding: 0.5rem;
+  @include typo--small;
+}
+
+.success {
+  color: #4caf50;
+}
+
+.error {
+  color: #f44336;
+}

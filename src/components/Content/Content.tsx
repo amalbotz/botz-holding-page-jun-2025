@@ -1,7 +1,8 @@
 import styles from "./Content.module.scss";
 import copy from "../../data/copy.json";
+import MailChimpSignup from "../MailChimpSignup/MailChimpSignup";
 
-const Content = ({ isVisible }: { isVisible: boolean }) => {
+const Content = ({ isVisible, toggleContent }: { isVisible: boolean; toggleContent: () => void }) => {
   return (
     <main
       className={styles.root}
@@ -12,10 +13,24 @@ const Content = ({ isVisible }: { isVisible: boolean }) => {
       hidden={!isVisible}
       aria-hidden={!isVisible}
     >
+      <button 
+        className={styles.closeButton}
+        onClick={toggleContent}
+        tabIndex={-1}
+        aria-hidden="true"
+      />
+      
       <div className={styles.inner}>
-        {copy.info.map((line, index) => (
-          <p key={index}>{line}</p>
-        ))}
+        <div className={styles.info}>
+          {copy.info.map((line, index) => (
+            <p key={index}>{line}</p>
+          ))}
+        </div>
+        <MailChimpSignup
+          listId="abc123def456"
+          user="your_mailchimp_user_id"
+          datacenter="us1"
+        />
       </div>
     </main>
   );

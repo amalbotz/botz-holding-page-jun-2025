@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg width="120px" height="120px" viewBox="0 0 120 120" version="1.1" xmlns="http://www.w3.org/2000/svg">
+  <g stroke="none" stroke-width="1" fill="none" fill-rule="evenodd">
+    <!-- Horizontal line -->
+    <rect x="0" y="59.5" width="120" height="1" fill="#FFFFFF" fill-opacity="0.2"></rect>
+    <!-- Vertical line -->
+    <rect x="59.5" y="0" width="1" height="120" fill="#FFFFFF" fill-opacity="0.2"></rect>
+  </g>
+</svg>

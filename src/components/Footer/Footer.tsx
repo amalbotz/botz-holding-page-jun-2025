@@ -1,5 +1,6 @@
 import { useState, useEffect } from "react";
 import styles from "./Footer.module.scss";
+import copy from "../../data/copy.json";
 
 const Footer = () => {
   const [date, setDate] = useState(new Date());
@@ -30,16 +31,25 @@ const Footer = () => {
   return (
     <footer className={styles.root}>
       <div>
+        <div></div>
         <nav>
-          <a>[Careers]</a>
-          <a>[Cookie Policy]</a>
+          {copy.footer.map((item, index) => (
+            <a
+              key={index}
+              href={item.url}
+              target="_blank"
+              rel="noopener noreferrer"
+            >
+              [ {item.title} ]
+            </a>
+          ))}
         </nav>
       </div>
       <hr />
       <div>
         <div>
-          X:{Math.round(position.x).toString().padStart(3, "0")} Y:
-          {Math.round(position.y).toString().padStart(3, "0")}
+          X:{Math.round(position.x).toString().padStart(4, "0")} Y:
+          {Math.round(position.y).toString().padStart(4, "0")}
         </div>
         <div>
           {`${date.getHours().toString().padStart(2, "0")}:${date

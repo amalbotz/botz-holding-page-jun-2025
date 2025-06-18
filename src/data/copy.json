@@ -2,5 +2,15 @@
   "info": [
     "Botz is building the world’s first soft robotics platform; an interface between humans, AI, and soft materials. Backed by a world-class team of technologists, designers, scientists, and medical professionals, the platform will enable the production of a wide range of new products.",
     "Sign up now to join the community and be the first to learn more about upcoming releases."
+  ],
+  "footer": [
+    {
+      "title": "Careers",
+      "url": "TBD"
+    },
+    {
+      "title": "Cookie Policy",
+      "url": "TBD"
+    }
   ]
 }

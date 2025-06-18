@@ -1,5 +1,6 @@
+@import "../../_vars.scss";
+
 .root {
-  border: 1px solid red;
   position: fixed;
   top: 0;
   left: 0;
@@ -8,8 +9,15 @@
   display: flex;
   align-items: center;
   gap: 1rem;
+
+  @include typo--large;
 }
 
 h1 {
+  @include typo--large;
   margin: 0;
+}
+
+nav button {
+  @include typo--large;
 }

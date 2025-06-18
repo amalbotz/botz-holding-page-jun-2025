@@ -1,0 +1,83 @@
+@import "./_vars.scss";
+
+// Reset and base styles
+* {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+html,
+body {
+  height: 100%;
+  width: 100%;
+  overflow: hidden;
+}
+
+body {
+  font-family: monospace, "Courier New", Courier, monospace;
+  font-size: 16px;
+  line-height: 1.5;
+  color: #fff;
+  background-color: #000;
+
+  text-rendering: optimizeLegibility;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  font-feature-settings: "kern", "liga", "calt", "pnum";
+  font-variant-ligatures: common-ligatures contextual;
+  font-variant-numeric: proportional-nums;
+
+  text-size-adjust: 100%;
+  -webkit-text-size-adjust: 100%;
+}
+
+// Links
+a {
+  color: inherit;
+  text-decoration: none;
+  cursor: pointer;
+}
+
+// Buttons
+button {
+  background: none;
+  border: none;
+  font: inherit;
+  color: inherit;
+  cursor: pointer;
+  @include typo--small;
+}
+
+// Headings
+h1,
+h2,
+h3,
+h4,
+h5,
+h6 {
+  @include typo--large;
+  font-weight: normal;
+}
+
+* {
+  cursor: none;
+}
+
+:focus {
+  outline: 1px solid #fff;
+  outline-offset: 2px;
+}
+
+:focus:not(:focus-visible) {
+  outline: none;
+}
+
+html {
+  scroll-behavior: smooth;
+}
+::selection {
+  background: #000;
+  color: #fff;
+  text-shadow: none;
+}

@@ -1,0 +1,21 @@
+$color--darkblue: #05052f;
+
+@mixin typo--large {
+  font-family: monospace;
+  font-size: 1rem;
+  text-transform: uppercase;
+  letter-spacing: 0.03em;
+}
+
+@mixin typo--small {
+  font-family: monospace;
+  font-size: 0.75rem;
+  text-transform: uppercase;
+  letter-spacing: 0.03em;
+}
+
+@mixin typo--body {
+  font-family: monospace;
+  font-size: 1rem;
+  letter-spacing: 0.03em;
+}
