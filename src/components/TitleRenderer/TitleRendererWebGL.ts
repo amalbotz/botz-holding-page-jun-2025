@@ -3,7 +3,7 @@ import fragmentShader from "./shaders/frag.glsl?raw";
 import titleMap from "./title-map.png";
 import backgroundMap from "./background.png";
 import backgroundVideo from "./background.mp4";
-import backgroundDebug from "./uv-16-9.png";
+// import backgroundDebug from "./uv-16-9.png";
 import {
   type BufferInfo,
   type ProgramInfo,
