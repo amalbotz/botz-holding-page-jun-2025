@@ -57,6 +57,11 @@ class TitleRenderer {
     this.programInfo = createProgramInfo(gl, [vertexShader, fragmentShader]);
     this.bufferInfo = primitives.createXYQuadBufferInfo(gl);
 
+    // Enable transparency and configure blending for iOS compatibility
+    gl.enable(gl.BLEND);
+    gl.blendFunc(gl.SRC_ALPHA, gl.ONE_MINUS_SRC_ALPHA);
+    gl.clearColor(0, 0, 0, 0); // Set clear color with transparent alpha
+
     this.width = this.orientation === "portrait" ? 0.5 : 0.66666;
     this.createTextures();
 
@@ -205,6 +210,7 @@ class TitleRenderer {
     const paddingX = (this.gl.canvas.width - displayWidth) * 0.5;
     const paddingY = (this.gl.canvas.height - displayHeight) * 0.5;
     this.gl.viewport(paddingX, paddingY, displayWidth, displayHeight);
+    this.gl.clear(this.gl.COLOR_BUFFER_BIT); // Clear with the transparent color
     drawBufferInfo(this.gl, this.bufferInfo);
   }
 }

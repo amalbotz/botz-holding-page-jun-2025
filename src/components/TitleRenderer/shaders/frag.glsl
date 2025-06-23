@@ -121,5 +121,7 @@ void main() {
 	float threshold = clamp(texel_wordmark.r + (dist_to_mouse * 0.4), 0.0, 1.0) + (1.0 - u_opacity);
 	threshold = step(0.5, threshold);
 
+  // threshold = texel_wordmark.r;
+
 	gl_FragColor = vec4(texel_background.rgb, threshold);
 }

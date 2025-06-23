@@ -12,7 +12,11 @@ const TitleRenderer = ({ isObscured }: TitleRendererProps) => {
 
   useEffect(() => {
     if (canvasRef.current) {
-      const gl = canvasRef.current.getContext("webgl2");
+      // Create WebGL context with proper alpha settings for iOS
+      const gl = canvasRef.current.getContext("webgl2", {
+        alpha: true,
+        premultipliedAlpha: false,
+      });
       let rafId: number;
 
       if (gl) {
