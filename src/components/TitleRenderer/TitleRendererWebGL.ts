@@ -1,9 +1,9 @@
 import vertexShader from "./shaders/vert.glsl?raw";
 import fragmentShader from "./shaders/frag.glsl?raw";
 import titleMap from "./title-map.png";
-import titleMapPortrait from "./title-map-portrait.png";
 import backgroundMap from "./background.png";
 import backgroundVideo from "./background.mp4";
+import backgroundDebug from "./uv-16-9.png";
 import {
   type BufferInfo,
   type ProgramInfo,
@@ -50,7 +50,7 @@ class TitleRenderer {
       }),
       u_mouse_position: [-1, -1],
       u_color: [1, 0, 0],
-      u_rotate_background_map: this.orientation === "portrait" ? 1 : 0,
+      u_rotate_maps: this.orientation === "portrait" ? 1 : 0,
     };
     this.programInfo = createProgramInfo(gl, [vertexShader, fragmentShader]);
     this.bufferInfo = primitives.createXYQuadBufferInfo(gl);
@@ -69,14 +69,9 @@ class TitleRenderer {
     if (newOrientation !== this.orientation) {
       this.width = newOrientation === "portrait" ? 0.5 : 0.66666;
       this.orientation = newOrientation;
-      this.uniforms.u_rotate_background_map =
-        newOrientation === "portrait" ? 1 : 0;
+      this.uniforms.u_rotate_maps = newOrientation === "portrait" ? 1 : 0;
       this.uniforms.u_resolution =
         newOrientation === "portrait" ? [880, 2200] : [2200, 880];
-      this.uniforms.u_map_wordmark = createTexture(this.gl, {
-        src: newOrientation === "portrait" ? titleMapPortrait : titleMap,
-        flipY: 1,
-      });
     }
   }
 
@@ -98,11 +93,12 @@ class TitleRenderer {
 
     const [wordmark, background] = await Promise.all([
       await createTextureAsync(this.gl, {
-        src: this.orientation === "portrait" ? titleMapPortrait : titleMap,
+        src: titleMap,
         flipY: 1,
       }),
       await createTextureAsync(this.gl, {
         src: backgroundMap,
+        // src: backgroundDebug,
         flipY: 1,
       }),
     ]);
