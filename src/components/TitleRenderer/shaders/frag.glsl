@@ -8,6 +8,7 @@ uniform float u_time;
 uniform float u_timescale;
 uniform float u_noise_scale;
 uniform float u_opacity;
+uniform float u_touch_opacity;
 uniform sampler2D u_map_wordmark;
 uniform sampler2D u_map_background;
 uniform float u_rotate_maps;
@@ -95,6 +96,7 @@ void main() {
 	noise_value = sineIn(noise_value);
 
 	dist_to_mouse = dist_to_mouse * (0.75 + noise_value * 0.5);
+  dist_to_mouse *= u_touch_opacity;
 
   vec2 wordmark_texcoord = v_texcoord.xy;
   vec2 background_texcoord = v_texcoord.xy;

@@ -26,6 +26,7 @@ const TitleRenderer = ({ isObscured }: TitleRendererProps) => {
 
         const onMouseMove = (e: MouseEvent) => {
           if (!isTouchingRef.current) {
+            renderer.isTouching = true;
             renderer.onMouseMove([e.clientX, e.clientY]);
           }
         };
@@ -33,6 +34,7 @@ const TitleRenderer = ({ isObscured }: TitleRendererProps) => {
         const onTouchStart = (e: TouchEvent) => {
           if (e.touches && e.touches.length > 0) {
             isTouchingRef.current = true;
+            renderer.isTouching = true;
             renderer.onMouseMove([e.touches[0].clientX, e.touches[0].clientY]);
           }
         };
@@ -40,12 +42,14 @@ const TitleRenderer = ({ isObscured }: TitleRendererProps) => {
         const onTouchMove = (e: TouchEvent) => {
           if (e.touches && e.touches.length > 0) {
             isTouchingRef.current = true;
+            renderer.isTouching = true;
             renderer.onMouseMove([e.touches[0].clientX, e.touches[0].clientY]);
           }
         };
 
         const onTouchEnd = () => {
           isTouchingRef.current = false;
+          renderer.isTouching = false;
         };
 
         window.addEventListener("mousemove", onMouseMove);

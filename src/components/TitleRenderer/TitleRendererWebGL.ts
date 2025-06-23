@@ -25,6 +25,7 @@ class TitleRenderer {
   private programInfo: ProgramInfo;
   private bufferInfo: BufferInfo;
   private _width = 0.66666;
+  private targetTouchOpacity = 0;
   private targetMousePosition = [-1, -1];
   private gl: WebGL2RenderingContext;
   private loaded = false;
@@ -40,6 +41,7 @@ class TitleRenderer {
       u_resolution: this.orientation === "portrait" ? [880, 2200] : [2200, 880], // resolution of the image map
       u_background_resolution: [16, 9],
       u_opacity: 1,
+      u_touch_opacity: 0,
       u_map_wordmark: createTexture(this.gl, {
         minMag: gl.LINEAR,
         src: [0, 0, 0, 0],
@@ -139,6 +141,14 @@ class TitleRenderer {
     ];
   }
 
+  public set isTouching(value: boolean) {
+    if (value) {
+      this.targetTouchOpacity = 1;
+    } else {
+      this.targetTouchOpacity = 0;
+    }
+  }
+
   public set color(color: [number, number, number]) {
     this.uniforms.u_color = color;
   }
@@ -180,11 +190,17 @@ class TitleRenderer {
     const displayWidth = this.gl.canvas.width * this.width;
     const displayHeight = displayWidth / aspectRatio;
 
+    this.uniforms.u_touch_opacity = this.uniforms.u_touch_opacity +=
+      (this.targetTouchOpacity - this.uniforms.u_touch_opacity) * 0.02;
+
     this.uniforms.u_mouse_position[0] +=
       (this.targetMousePosition[0] - this.uniforms.u_mouse_position[0]) * 0.02;
 
     this.uniforms.u_mouse_position[1] +=
       (this.targetMousePosition[1] - this.uniforms.u_mouse_position[1]) * 0.02;
+
+    this.uniforms.u_touch_opacity +=
+      (this.targetTouchOpacity - this.uniforms.u_touch_opacity) * 0.02;
 
     const paddingX = (this.gl.canvas.width - displayWidth) * 0.5;
     const paddingY = (this.gl.canvas.height - displayHeight) * 0.5;
