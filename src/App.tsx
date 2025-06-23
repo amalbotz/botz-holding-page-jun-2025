@@ -30,7 +30,7 @@ function App() {
   return (
     <>
       <BackgroundGrid maxSpeed={100} />
-      <TitleRenderer />
+      <TitleRenderer isObscured={isContentVisible} />
       <Footer />
       <Content isVisible={isContentVisible} toggleContent={toggleContent} />
       <Header toggleContent={toggleContent} />

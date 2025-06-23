@@ -22,12 +22,12 @@
   height: 100%;
   background: transparent;
   border: none;
-  cursor: pointer;
 }
 
 .inner {
   max-width: 54ch;
   text-align: left;
+  position: relative;
 }
 
 .info {

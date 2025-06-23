@@ -1,5 +1,17 @@
 @import "./_vars.scss";
 
+// Font declarations
+@font-face {
+  font-family: "Monument Grotesk Semi Mono";
+  src: url("./assets/MonumentGroteskSemiMono/ABCMonumentGroteskSemiMono-Regular.woff2")
+      format("woff2"),
+    url("./assets/MonumentGroteskSemiMono/ABCMonumentGroteskSemiMono-Regular.woff")
+      format("woff");
+  font-weight: normal;
+  font-style: normal;
+  font-display: swap;
+}
+
 // Reset and base styles
 * {
   box-sizing: border-box;
@@ -15,7 +27,8 @@ body {
 }
 
 body {
-  font-family: monospace, "Courier New", Courier, monospace;
+  font-family: "Monument Grotesk Semi Mono", monospace, "Courier New", Courier,
+    monospace;
   font-size: 16px;
   line-height: 1.5;
   color: #fff;

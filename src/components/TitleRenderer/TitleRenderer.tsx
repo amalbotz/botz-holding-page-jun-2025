@@ -2,7 +2,11 @@ import TitleRendererWebGL from "./TitleRendererWebGL";
 import styles from "./TitleRenderer.module.scss";
 import { useEffect, useRef } from "react";
 
-const TitleRenderer = () => {
+interface TitleRendererProps {
+  isObscured: boolean;
+}
+
+const TitleRenderer = ({ isObscured }: TitleRendererProps) => {
   const canvasRef = useRef<HTMLCanvasElement>(null);
 
   useEffect(() => {
@@ -30,7 +34,13 @@ const TitleRenderer = () => {
     }
   }, []);
 
-  return <canvas className={styles.root} ref={canvasRef} />;
+  return (
+    <canvas
+      className={styles.root}
+      ref={canvasRef}
+      style={{ filter: isObscured ? "blur(15px)" : "none" }}
+    />
+  );
 };
 
 export default TitleRenderer;
