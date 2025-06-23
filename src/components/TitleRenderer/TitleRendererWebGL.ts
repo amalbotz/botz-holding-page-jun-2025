@@ -1,6 +1,7 @@
 import vertexShader from "./shaders/vert.glsl?raw";
 import fragmentShader from "./shaders/frag.glsl?raw";
 import titleMap from "./title-map.png";
+import titleMapPortrait from "./title-map-portrait.png";
 import backgroundMap from "./background.png";
 import backgroundVideo from "./background.mp4";
 import {
@@ -27,7 +28,8 @@ class TitleRenderer {
   private targetMousePosition = [-1, -1];
   private gl: WebGL2RenderingContext;
   private loaded = false;
-  // private img: HTMLImageElement;
+  private orientation =
+    window.innerHeight > window.innerWidth ? "portrait" : "landscape";
 
   constructor(gl: WebGL2RenderingContext) {
     this.gl = gl;
@@ -35,7 +37,7 @@ class TitleRenderer {
       u_time: this.startTime,
       u_timescale: 0.3,
       u_noise_scale: 1,
-      u_resolution: [2200, 880], // resolution of the image map
+      u_resolution: this.orientation === "portrait" ? [880, 2200] : [2200, 880], // resolution of the image map
       u_background_resolution: [16, 9],
       u_opacity: 1,
       u_map_wordmark: createTexture(this.gl, {
@@ -48,11 +50,34 @@ class TitleRenderer {
       }),
       u_mouse_position: [-1, -1],
       u_color: [1, 0, 0],
+      u_rotate_background_map: this.orientation === "portrait" ? 1 : 0,
     };
     this.programInfo = createProgramInfo(gl, [vertexShader, fragmentShader]);
     this.bufferInfo = primitives.createXYQuadBufferInfo(gl);
 
+    this.width = this.orientation === "portrait" ? 0.5 : 0.66666;
     this.createTextures();
+
+    this.onResize = this.onResize.bind(this);
+    window.addEventListener("resize", this.onResize);
+  }
+
+  private onResize() {
+    const newOrientation =
+      window.innerHeight > window.innerWidth ? "portrait" : "landscape";
+
+    if (newOrientation !== this.orientation) {
+      this.width = newOrientation === "portrait" ? 0.5 : 0.66666;
+      this.orientation = newOrientation;
+      this.uniforms.u_rotate_background_map =
+        newOrientation === "portrait" ? 1 : 0;
+      this.uniforms.u_resolution =
+        newOrientation === "portrait" ? [880, 2200] : [2200, 880];
+      this.uniforms.u_map_wordmark = createTexture(this.gl, {
+        src: newOrientation === "portrait" ? titleMapPortrait : titleMap,
+        flipY: 1,
+      });
+    }
   }
 
   private async createTextures() {
@@ -68,9 +93,12 @@ class TitleRenderer {
     video.style.opacity = "0";
     document.body.appendChild(video);
 
+    this.uniforms.u_resolution =
+      this.orientation === "portrait" ? [880, 2200] : [2200, 880];
+
     const [wordmark, background] = await Promise.all([
       await createTextureAsync(this.gl, {
-        src: titleMap,
+        src: this.orientation === "portrait" ? titleMapPortrait : titleMap,
         flipY: 1,
       }),
       await createTextureAsync(this.gl, {
@@ -114,6 +142,7 @@ class TitleRenderer {
       1 - (y - paddingY) / displayHeight,
     ];
   }
+
   public set color(color: [number, number, number]) {
     this.uniforms.u_color = color;
   }

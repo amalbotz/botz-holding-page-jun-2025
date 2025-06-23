@@ -10,6 +10,10 @@
   flex-direction: column;
   gap: 0.6875rem;
   @include typo--small;
+
+  @media (orientation: portrait) {
+    gap: 0.75rem;
+  }
 }
 
 hr {
@@ -25,11 +29,45 @@ hr {
   justify-content: space-between;
 }
 
+.root > div:first-child {
+  @media (orientation: portrait) {
+    flex-direction: column-reverse;
+    gap: 1.125rem;
+  }
+}
+
 .root nav {
   display: flex;
-  gap: 1rem;
+  gap: 2ch;
+
+  @media (orientation: portrait) {
+    justify-content: center;
+  }
 }
 
 nav a {
   @include typo--small;
+}
+
+.ruler {
+  border-bottom: 1px solid #fff;
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-end;
+  width: 23.5vw;
+  margin-bottom: 0.25rem;
+
+  @media (orientation: portrait) {
+    width: 100%;
+  }
+}
+
+.ruler div {
+  width: 1px;
+  height: 1rem;
+  background-color: #fff;
+}
+
+.ruler div:nth-child(2n) {
+  height: 0.625rem;
 }

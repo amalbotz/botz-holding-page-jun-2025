@@ -1,6 +1,7 @@
 @import "../../_vars.scss";
 
 .root {
+  @include typo--large;
   position: fixed;
   top: 0;
   left: 0;
@@ -8,9 +9,12 @@
   padding: 1.4375rem 1.25rem;
   display: flex;
   align-items: center;
-  gap: 1rem;
+  gap: 2ch;
 
-  @include typo--large;
+  @media (orientation: portrait) {
+    justify-content: center;
+    padding-top: 3.625rem;
+  }
 }
 
 h1 {

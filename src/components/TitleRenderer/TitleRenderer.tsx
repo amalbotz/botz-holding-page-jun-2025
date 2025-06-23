@@ -8,11 +8,13 @@ interface TitleRendererProps {
 
 const TitleRenderer = ({ isObscured }: TitleRendererProps) => {
   const canvasRef = useRef<HTMLCanvasElement>(null);
+  const isTouchingRef = useRef(false);
 
   useEffect(() => {
     if (canvasRef.current) {
       const gl = canvasRef.current.getContext("webgl2");
       let rafId: number;
+
       if (gl) {
         const renderer = new TitleRendererWebGL(gl);
 
@@ -21,13 +23,41 @@ const TitleRenderer = ({ isObscured }: TitleRendererProps) => {
           rafId = requestAnimationFrame(animate);
         };
         animate();
+
         const onMouseMove = (e: MouseEvent) => {
-          renderer.onMouseMove([e.clientX, e.clientY]);
+          if (!isTouchingRef.current) {
+            renderer.onMouseMove([e.clientX, e.clientY]);
+          }
         };
+
+        const onTouchStart = (e: TouchEvent) => {
+          if (e.touches && e.touches.length > 0) {
+            isTouchingRef.current = true;
+            renderer.onMouseMove([e.touches[0].clientX, e.touches[0].clientY]);
+          }
+        };
+
+        const onTouchMove = (e: TouchEvent) => {
+          if (e.touches && e.touches.length > 0) {
+            isTouchingRef.current = true;
+            renderer.onMouseMove([e.touches[0].clientX, e.touches[0].clientY]);
+          }
+        };
+
+        const onTouchEnd = () => {
+          isTouchingRef.current = false;
+        };
+
         window.addEventListener("mousemove", onMouseMove);
+        window.addEventListener("touchstart", onTouchStart);
+        window.addEventListener("touchmove", onTouchMove);
+        window.addEventListener("touchend", onTouchEnd);
 
         return () => {
           window.removeEventListener("mousemove", onMouseMove);
+          window.removeEventListener("touchstart", onTouchStart);
+          window.removeEventListener("touchmove", onTouchMove);
+          window.removeEventListener("touchend", onTouchEnd);
           cancelAnimationFrame(rafId);
         };
       }

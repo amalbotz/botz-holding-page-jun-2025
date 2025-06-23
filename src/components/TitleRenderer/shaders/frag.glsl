@@ -10,6 +10,7 @@ uniform float u_noise_scale;
 uniform float u_opacity;
 uniform sampler2D u_map_wordmark;
 uniform sampler2D u_map_background;
+uniform float u_rotate_background_map;
 uniform vec2 u_background_resolution;
 uniform vec2 u_resolution;
 uniform vec2 u_mouse_position;
@@ -106,9 +107,14 @@ void main() {
 
 	float threshold = clamp(texel_wordmark.r + (dist_to_mouse * 0.4), 0.0, 1.0) + (1.0 - u_opacity);
 	threshold = step(0.5, threshold);
-
+  
 	float background_y_stretch = aspect_ratio_background / aspect_ratio;
-	vec4 texel_background = texture2D(u_map_background, v_texcoord.xy * vec2(1.0, background_y_stretch));
+  vec2 background_texcoord = vec2(v_texcoord.x, v_texcoord.y * background_y_stretch);
+
+  if (u_rotate_background_map == 1.0) {
+		background_texcoord = vec2(v_texcoord.y, v_texcoord.x);
+	}
+	vec4 texel_background = texture2D(u_map_background, background_texcoord);
 
 	gl_FragColor = vec4(texel_background.rgb, threshold);
   // gl_FragColor = vec4(u_color,1.0);
