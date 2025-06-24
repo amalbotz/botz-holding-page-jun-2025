@@ -21,12 +21,12 @@ $color--darkblue: #05052f;
 }
 
 @mixin typo--body {
-  font-family: monospace;
+  font-family: "Monument Grotesk Semi Mono", monospace, "Courier New", Courier,
+    monospace;
   font-size: 0.875rem;
   letter-spacing: 0.03em;
 
   @media (max-width: 768px) {
     font-size: 0.8125rem;
   }
-  // line-height: 1em;
 }
