@@ -37,6 +37,13 @@
   outline-offset: 0;
 }
 
+.buttonWrapper {
+  display: flex;
+  // flex-direction: column;
+  gap: 0.4375rem;
+  align-items: c;
+}
+
 .root button {
   @include typo--large;
   background-color: transparent;
@@ -56,15 +63,13 @@
 }
 
 .message {
-  margin-top: 1rem;
-  padding: 0.5rem;
-  @include typo--small;
+  @include typo--large;
 }
 
 .success {
-  color: #4caf50;
+  color: #0086ff;
 }
 
 .error {
-  color: #f44336;
+  color: #ff0000;
 }

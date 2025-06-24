@@ -77,23 +77,29 @@ const MailChimpSignup = ({
                 required
                 aria-label="Email address"
               />
-              <button type="submit" disabled={status === "sending"}>
-                [ SIGN UP ]
-              </button>
+              <div className={styles.buttonWrapper}>
+                <button
+                  type="submit"
+                  disabled={status === "sending"}
+                  style={{ display: status === "sending" ? "none" : "" }}
+                >
+                  [ SIGN UP ]
+                </button>
+                {status === "sending" && (
+                  <div className={styles.message}>Subscribing...</div>
+                )}
+                {status === "error" && (
+                  <div className={`${styles.message} ${styles.error}`}>
+                    {message as string}
+                  </div>
+                )}
+                {status === "success" && (
+                  <div className={`${styles.message} ${styles.success}`}>
+                    Thank you for subscribing!
+                  </div>
+                )}
+              </div>
             </form>
-            {status === "sending" && (
-              <div className={styles.message}>Subscribing...</div>
-            )}
-            {status === "error" && (
-              <div className={`${styles.message} ${styles.error}`}>
-                {message as string}
-              </div>
-            )}
-            {status === "success" && (
-              <div className={`${styles.message} ${styles.success}`}>
-                Thank you for subscribing!
-              </div>
-            )}
           </>
         )}
       />
