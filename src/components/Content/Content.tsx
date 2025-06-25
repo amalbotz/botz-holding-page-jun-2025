@@ -7,7 +7,7 @@ const Content = ({
   toggleContent,
 }: {
   isVisible: boolean;
-  toggleContent: () => void;
+  toggleContent: (shouldOpen?: boolean) => void;
 }) => {
   return (
     <main
@@ -21,7 +21,7 @@ const Content = ({
     >
       <button
         className={styles.closeButton}
-        onClick={toggleContent}
+        onClick={() => toggleContent(false)}
         tabIndex={-1}
         aria-hidden="true"
       />
