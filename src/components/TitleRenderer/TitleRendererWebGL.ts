@@ -1,6 +1,7 @@
 import vertexShader from "./shaders/vert.glsl?raw";
 import fragmentShader from "./shaders/frag.glsl?raw";
 import titleMap from "./title-map.png";
+import titleMapPortrait from "./title-map-portrait.png";
 import backgroundMap from "./background.png";
 import backgroundVideo from "./background.mp4";
 // import backgroundDebug from "./uv-16-9.png";
@@ -19,40 +20,53 @@ import {
   setTextureFromElement,
 } from "twgl.js";
 
+const WIDTH = 0.6666;
+const WIDTH_PORTRAIT = 0.95;
+const RESOLUTION = [2200, 880];
+const RESOLUTION_PORTRAIT = [1297, 880];
+
 class TitleRenderer {
   private uniforms: { [key: string]: any };
   private startTime = Date.now();
   private programInfo: ProgramInfo;
   private bufferInfo: BufferInfo;
-  private _width = 0.66666;
+  private _width = WIDTH;
   private targetTouchOpacity = 0;
   private targetMousePosition = [-1, -1];
   private gl: WebGL2RenderingContext;
   private loaded = false;
   private orientation =
     window.innerHeight > window.innerWidth ? "portrait" : "landscape";
+  private wordmark?: WebGLTexture;
+  private wordmarkPortrait?: WebGLTexture;
 
   constructor(gl: WebGL2RenderingContext) {
     this.gl = gl;
+
+    this.wordmark = createTexture(this.gl, {
+      src: [0, 0, 0, 0],
+    });
+    this.wordmarkPortrait = createTexture(this.gl, {
+      src: [0, 0, 0, 0],
+    });
     this.uniforms = {
       u_time: this.startTime,
       u_timescale: 0.3,
       u_noise_scale: 1,
-      u_resolution: this.orientation === "portrait" ? [880, 2200] : [2200, 880], // resolution of the image map
+      u_resolution:
+        this.orientation === "portrait" ? RESOLUTION_PORTRAIT : RESOLUTION, // resolution of the image map
       u_background_resolution: [16, 9],
       u_opacity: 1,
       u_touch_opacity: 0,
-      u_map_wordmark: createTexture(this.gl, {
-        minMag: gl.LINEAR,
-        src: [0, 0, 0, 0],
-      }),
+      u_map_wordmark:
+        this.orientation === "portrait" ? this.wordmarkPortrait : this.wordmark,
       u_map_background: createTexture(this.gl, {
         minMag: gl.LINEAR,
         src: [0, 0, 0, 0],
       }),
       u_mouse_position: [-1, -1],
       u_color: [1, 0, 0],
-      u_rotate_maps: this.orientation === "portrait" ? 1 : 0,
+      u_rotate_maps: 0,
     };
     this.programInfo = createProgramInfo(gl, [vertexShader, fragmentShader]);
     this.bufferInfo = primitives.createXYQuadBufferInfo(gl);
@@ -62,7 +76,7 @@ class TitleRenderer {
     gl.blendFunc(gl.SRC_ALPHA, gl.ONE_MINUS_SRC_ALPHA);
     gl.clearColor(0, 0, 0, 0); // Set clear color with transparent alpha
 
-    this.width = this.orientation === "portrait" ? 0.5 : 0.66666;
+    this.width = this.orientation === "portrait" ? WIDTH_PORTRAIT : WIDTH;
     this.createTextures();
 
     this.onResize = this.onResize.bind(this);
@@ -74,11 +88,12 @@ class TitleRenderer {
       window.innerHeight > window.innerWidth ? "portrait" : "landscape";
 
     if (newOrientation !== this.orientation) {
-      this.width = newOrientation === "portrait" ? 0.5 : 0.66666;
+      this.width = newOrientation === "portrait" ? WIDTH_PORTRAIT : WIDTH;
       this.orientation = newOrientation;
-      this.uniforms.u_rotate_maps = newOrientation === "portrait" ? 1 : 0;
       this.uniforms.u_resolution =
-        newOrientation === "portrait" ? [880, 2200] : [2200, 880];
+        newOrientation === "portrait" ? RESOLUTION_PORTRAIT : RESOLUTION;
+      this.uniforms.u_map_wordmark =
+        this.orientation === "portrait" ? this.wordmarkPortrait : this.wordmark;
     }
   }
 
@@ -97,11 +112,15 @@ class TitleRenderer {
     document.body.appendChild(video);
 
     this.uniforms.u_resolution =
-      this.orientation === "portrait" ? [880, 2200] : [2200, 880];
+      this.orientation === "portrait" ? RESOLUTION_PORTRAIT : RESOLUTION;
 
-    const [wordmark, background] = await Promise.all([
+    const [wordmark, wordmarkPortrait, background] = await Promise.all([
       await createTextureAsync(this.gl, {
         src: titleMap,
+        flipY: 1,
+      }),
+      await createTextureAsync(this.gl, {
+        src: titleMapPortrait,
         flipY: 1,
       }),
       await createTextureAsync(this.gl, {
@@ -111,7 +130,11 @@ class TitleRenderer {
       }),
     ]);
 
-    this.uniforms.u_map_wordmark = wordmark;
+    this.wordmark = wordmark;
+    this.wordmarkPortrait = wordmarkPortrait;
+
+    this.uniforms.u_map_wordmark =
+      this.orientation === "portrait" ? wordmarkPortrait : wordmark;
     this.uniforms.u_map_background = background;
     this.loaded = true;
 
