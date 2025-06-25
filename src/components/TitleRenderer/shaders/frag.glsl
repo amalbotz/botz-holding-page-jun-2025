@@ -88,8 +88,11 @@ void main() {
 	float mouse_y = u_mouse_position.y * u_resolution.y;
 
 	float dist_to_mouse = distance(vec2(mouse_x, mouse_y), vec2(pixel_x, pixel_y));
-	dist_to_mouse = smoothstep(0.0, max(u_resolution.x, u_resolution.y) * 0.33, dist_to_mouse);
+	dist_to_mouse = smoothstep(max(u_resolution.x, u_resolution.y) * 0.1, max(u_resolution.x, u_resolution.y) * 0.4, dist_to_mouse);
 	dist_to_mouse = 1.0 - dist_to_mouse;
+
+  // gl_FragColor = vec4(dist_to_mouse,dist_to_mouse,dist_to_mouse,1.0);
+  // return;
 
 	vec2 noise_texcoord = vec2(v_texcoord.x, v_texcoord.y / aspect_ratio);
 	float noise_value = noise(vec3(noise_texcoord * 6.0, u_time * 0.001));
