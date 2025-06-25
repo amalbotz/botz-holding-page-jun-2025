@@ -1,4 +1,3 @@
-
 #define PI 3.141592653589793
 #define HALF_PI 1.5707963267948966
 precision mediump float;
@@ -11,7 +10,6 @@ uniform float u_opacity;
 uniform float u_touch_opacity;
 uniform sampler2D u_map_wordmark;
 uniform sampler2D u_map_background;
-uniform float u_rotate_maps;
 uniform vec2 u_background_resolution;
 uniform vec2 u_resolution;
 uniform vec2 u_mouse_position;
@@ -80,6 +78,7 @@ float quarticIn(float t) {
 
 void main() {
   float aspect_ratio = u_resolution.x / u_resolution.y;
+  float background_aspect_ratio = u_background_resolution.x / u_background_resolution.y;
 
 	float pixel_x = v_texcoord.x * u_resolution.x;
 	float pixel_y = v_texcoord.y * u_resolution.y;
@@ -104,23 +103,21 @@ void main() {
   vec2 wordmark_texcoord = v_texcoord.xy;
   vec2 background_texcoord = v_texcoord.xy;
 
-  vec2 wordmark_dims = vec2(1.0, u_resolution.y / u_resolution.x);
-
-  if (u_rotate_maps == 1.0) {
-    wordmark_dims = vec2(1.0, u_resolution.x / u_resolution.y);
+  vec2 scale;
+  if (background_aspect_ratio > aspect_ratio) {
+    // Background is wider than container, fit by height
+    scale = vec2(background_aspect_ratio / aspect_ratio, 1.0);
+  } else {
+    // Background is taller than container, fit by width
+    scale = vec2(1.0, aspect_ratio / background_aspect_ratio);
   }
-  vec2 background_dims = vec2(1.0, u_background_resolution.y / u_background_resolution.x);
-
-  if (u_rotate_maps == 1.0) {
-    wordmark_texcoord = vec2(wordmark_texcoord.y, 1.0 - wordmark_texcoord.x);
-    background_texcoord = vec2(background_texcoord.y, 1.0 - background_texcoord.x);
-	}
-  background_texcoord *= (wordmark_dims / background_dims);
+  
+  // Center the background
+  background_texcoord = (background_texcoord - 0.5) / scale + 0.5;
 
   vec4 texel_wordmark = texture2D(u_map_wordmark, wordmark_texcoord);
   vec4 texel_background = texture2D(u_map_background, background_texcoord);
   
-
 	float threshold = clamp(texel_wordmark.r + (dist_to_mouse * 0.4), 0.0, 1.0) + (1.0 - u_opacity);
 	threshold = step(0.5, threshold);
 
