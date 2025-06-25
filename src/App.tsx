@@ -10,8 +10,8 @@ import TitleRenderer from "./components/TitleRenderer/TitleRenderer";
 function App() {
   const [isContentVisible, setIsContentVisible] = useState(false);
 
-  const toggleContent = () => {
-    setIsContentVisible(!isContentVisible);
+  const toggleContent = (shouldOpen?: boolean) => {
+    setIsContentVisible(shouldOpen ?? !isContentVisible);
   };
 
   useEffect(() => {

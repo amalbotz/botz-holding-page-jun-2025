@@ -9,6 +9,10 @@
   left: 0;
   margin-left: -15px;
   margin-top: -15px;
+
+  @media (hover: none) {
+    display: none;
+  }
 }
 
 .horizontal {
