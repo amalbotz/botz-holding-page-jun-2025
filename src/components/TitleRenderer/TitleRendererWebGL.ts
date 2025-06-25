@@ -162,7 +162,9 @@ class TitleRenderer {
     const displayHeight = displayWidth / aspectRatio;
 
     const paddingX = (window.innerWidth - displayWidth) * 0.5;
-    const paddingY = (window.innerHeight - displayHeight) * 0.5;
+    const paddingY =
+      (window.innerHeight - displayHeight) *
+      (this.orientation === "portrait" ? 0.42 : 0.5);
 
     this.targetMousePosition = [
       (x - paddingX) / displayWidth,
@@ -232,7 +234,9 @@ class TitleRenderer {
       (this.targetTouchOpacity - this.uniforms.u_touch_opacity) * 0.02;
 
     const paddingX = (this.gl.canvas.width - displayWidth) * 0.5;
-    const paddingY = (this.gl.canvas.height - displayHeight) * 0.5;
+    const paddingY =
+      (this.gl.canvas.height - displayHeight) *
+      (this.orientation === "portrait" ? 0.58 : 0.5);
     this.gl.viewport(paddingX, paddingY, displayWidth, displayHeight);
     this.gl.clear(this.gl.COLOR_BUFFER_BIT); // Clear with the transparent color
     drawBufferInfo(this.gl, this.bufferInfo);
