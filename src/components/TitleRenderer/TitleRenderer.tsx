@@ -16,6 +16,7 @@ const TitleRenderer = ({ isObscured }: TitleRendererProps) => {
       const gl = canvasRef.current.getContext("webgl2", {
         alpha: true,
         premultipliedAlpha: false,
+        antialias: true,
       });
       let rafId: number;
 

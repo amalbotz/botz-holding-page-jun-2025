@@ -3,9 +3,13 @@ import styles from "./BackgroundGrid.module.scss";
 
 interface BackgroundGridProps {
   maxSpeed?: number;
+  disabled?: boolean;
 }
 
-const BackgroundGrid = ({ maxSpeed = 20 }: BackgroundGridProps) => {
+const BackgroundGrid = ({
+  maxSpeed = 20,
+  disabled = true,
+}: BackgroundGridProps) => {
   const bgRef = useRef<HTMLDivElement>(null);
   const positionRef = useRef({ x: 0, y: 0 });
   const directionRef = useRef({ x: 0.5, y: 0.5 }); // Direction of movement
@@ -15,6 +19,7 @@ const BackgroundGrid = ({ maxSpeed = 20 }: BackgroundGridProps) => {
   const easingFactor = 0.015; // Lower = smoother/slower easing, higher = faster response
 
   useEffect(() => {
+    if (disabled) return;
     const handlePointerMove = (event: PointerEvent) => {
       const centerX = window.innerWidth / 2;
       const centerY = window.innerHeight / 2;
@@ -30,9 +35,10 @@ const BackgroundGrid = ({ maxSpeed = 20 }: BackgroundGridProps) => {
     return () => {
       window.removeEventListener("pointermove", handlePointerMove);
     };
-  }, []);
+  }, [disabled]);
 
   useEffect(() => {
+    if (disabled) return;
     let animationId: number;
 
     const animate = (currentTime: number) => {
@@ -75,7 +81,7 @@ const BackgroundGrid = ({ maxSpeed = 20 }: BackgroundGridProps) => {
     return () => {
       cancelAnimationFrame(animationId);
     };
-  }, [maxSpeed]);
+  }, [maxSpeed, disabled]);
 
   return <div ref={bgRef} className={styles.backgroundGrid} />;
 };
