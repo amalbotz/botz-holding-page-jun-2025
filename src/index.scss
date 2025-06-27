@@ -24,6 +24,7 @@ body {
   height: 100%;
   width: 100%;
   overflow: hidden;
+  background-color: $color--darkblue;
 }
 
 body {
@@ -32,7 +33,6 @@ body {
   font-size: 16px;
   line-height: 1.5;
   color: #fff;
-  background-color: #000;
 
   text-rendering: optimizeLegibility;
   -webkit-font-smoothing: antialiased;
