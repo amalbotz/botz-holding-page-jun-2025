@@ -2,7 +2,7 @@ import vertexShader from "./shaders/vert.glsl?raw";
 import fragmentShader from "./shaders/frag.glsl?raw";
 import titleMap from "./title-map.png";
 import titleMapPortrait from "./title-map-portrait.png";
-import backgroundMap from "./background.png";
+import backgroundMap from "./background.jpg";
 import backgroundVideo from "./background.mp4";
 // import backgroundDebug from "./uv-16-9.png";
 import {
