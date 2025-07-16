@@ -6,6 +6,8 @@ import titleMap from "./title-map.png";
 import titleMapPortrait from "./title-map-portrait.png";
 import backgroundMap from "./background.jpg";
 import backgroundVideo from "./background.mp4";
+import noiseMap from "./noise.png";
+import particleMap from "./particles.png";
 // import backgroundDebug from "./uv-16-9.png";
 import {
   type BufferInfo,
@@ -28,12 +30,16 @@ const WIDTH = 0.6666;
 const WIDTH_PORTRAIT = 0.95;
 const RESOLUTION = [2200, 880];
 const RESOLUTION_PORTRAIT = [1297, 880];
+const SPRITE_COUNT = 9;
 
 class TitleRenderer {
   private gl: WebGL2RenderingContext;
   private uniformsLogo: { [key: string]: any };
   private uniformsParticle: { [key: string]: any };
-  private particleCount = 99;
+  private particleCount = Math.min(
+    Math.round(window.innerWidth * window.innerHeight * 0.00025),
+    500
+  );
   private startTime = Date.now();
   private programInfoLogo: ProgramInfo;
   private bufferInfoLogo: BufferInfo;
@@ -49,6 +55,8 @@ class TitleRenderer {
     window.innerHeight > window.innerWidth ? "portrait" : "landscape";
   private wordmark?: WebGLTexture;
   private wordmarkPortrait?: WebGLTexture;
+  private noiseMap: WebGLTexture;
+  private particleMap: WebGLTexture;
 
   constructor(gl: WebGL2RenderingContext) {
     this.gl = gl;
@@ -57,6 +65,12 @@ class TitleRenderer {
       src: [0, 0, 0, 0],
     });
     this.wordmarkPortrait = createTexture(this.gl, {
+      src: [0, 0, 0, 0],
+    });
+    this.noiseMap = createTexture(this.gl, {
+      src: [0, 0, 0, 0],
+    });
+    this.particleMap = createTexture(this.gl, {
       src: [0, 0, 0, 0],
     });
     this.uniformsLogo = {
@@ -84,6 +98,9 @@ class TitleRenderer {
         gl.canvas.width / window.devicePixelRatio,
         gl.canvas.height / window.devicePixelRatio,
       ],
+      u_noise_map: this.noiseMap,
+      u_particle_map: this.particleMap,
+      u_sprite_count: SPRITE_COUNT,
     };
     this.programInfoLogo = createProgramInfo(gl, [
       vertexShaderLogo,
@@ -102,19 +119,11 @@ class TitleRenderer {
     // const particleArrays = { ...primitives.createXYQuadVertices() };
 
     const quadVertices = primitives.createXYQuadVertices();
-    console.log(quadVertices);
     this.bufferInfoParticle = createBufferInfoFromArrays(this.gl, {
       ...quadVertices,
-      instanceScale: {
-        numComponents: 1,
-        data: new Float32Array(this.particleCount).map(
-          () => Math.random() * 0.5 + 0.5
-        ),
-        divisor: 1,
-      },
       instancePosition: {
-        numComponents: 2,
-        data: new Float32Array(this.particleCount * 2).map(
+        numComponents: 3,
+        data: new Float32Array(this.particleCount * 3).map(
           () => Math.random() * 2 - 1
         ),
         divisor: 1,
@@ -125,12 +134,42 @@ class TitleRenderer {
           () => Math.random() * 2 - 1
         ),
         divisor: 1,
-      },
+      }, // normalized in shader
       instanceSpeed: {
         numComponents: 1,
         data: new Float32Array(this.particleCount).map(
           () => Math.random() * 0.5 + 0.5
         ),
+        divisor: 1,
+      },
+      instanceSpriteIndex: {
+        numComponents: 1,
+        data: new Float32Array(this.particleCount).map(() =>
+          Math.floor(Math.random() * SPRITE_COUNT)
+        ),
+        divisor: 1,
+      },
+      instanceAngularVelocity: {
+        numComponents: 1,
+        data: new Float32Array(this.particleCount).map(
+          () => Math.random() * 2 - 1
+        ),
+        divisor: 1,
+      },
+      instanceColor: {
+        numComponents: 3,
+        data: new Float32Array(this.particleCount * 3).map((_, index) => {
+          switch (index % 3) {
+            case 0:
+              return 0.9 + Math.random() * 0.1;
+            case 1:
+              return 0.8 + Math.random() * 0.2;
+            case 2:
+              return 0.6 + Math.random() * 0.15;
+            default:
+              return 0;
+          }
+        }),
         divisor: 1,
       },
     });
@@ -185,28 +224,39 @@ class TitleRenderer {
     this.uniformsLogo.u_resolution =
       this.orientation === "portrait" ? RESOLUTION_PORTRAIT : RESOLUTION;
 
-    const [wordmark, wordmarkPortrait, background] = await Promise.all([
-      await createTextureAsync(this.gl, {
-        src: titleMap,
-        flipY: 1,
-      }),
-      await createTextureAsync(this.gl, {
-        src: titleMapPortrait,
-        flipY: 1,
-      }),
-      await createTextureAsync(this.gl, {
-        src: backgroundMap,
-        // src: backgroundDebug,
-        flipY: 1,
-      }),
-    ]);
+    const [wordmark, wordmarkPortrait, background, noise, particle] =
+      await Promise.all([
+        await createTextureAsync(this.gl, {
+          src: titleMap,
+          flipY: 1,
+        }),
+        await createTextureAsync(this.gl, {
+          src: titleMapPortrait,
+          flipY: 1,
+        }),
+        await createTextureAsync(this.gl, {
+          src: backgroundMap,
+          // src: backgroundDebug,
+          flipY: 1,
+        }),
+        await createTextureAsync(this.gl, {
+          src: noiseMap,
+          flipY: 1,
+        }),
+        await createTextureAsync(this.gl, {
+          src: particleMap,
+          flipY: 1,
+        }),
+      ]);
 
     this.wordmark = wordmark;
     this.wordmarkPortrait = wordmarkPortrait;
-
+    this.noiseMap = noise;
+    this.uniformsParticle.u_noise_map = noise;
     this.uniformsLogo.u_map_wordmark =
       this.orientation === "portrait" ? wordmarkPortrait : wordmark;
     this.uniformsLogo.u_map_background = background;
+    this.uniformsParticle.u_particle_map = particle;
     this.loaded = true;
 
     const onVideoFrame = () => {
