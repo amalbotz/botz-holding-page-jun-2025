@@ -35,7 +35,7 @@ void main() {
 
   float noise_scale_xy = 0.01;
   float noise_scale_z = 0.5;
-  float timescale = 0.00005;
+  float timescale = 0.00002;
   float timescale_rotate = 0.0001;
   // normalize direction§
   float direction_x = texture2D(u_noise_map, instancePosition.xz * vec2(noise_scale_xy, noise_scale_z)).r * 2.0 - 1.0;
@@ -45,11 +45,16 @@ void main() {
    
    // animate
   center += velocity * u_time * timescale;
+  float offset_x = texture2D(u_noise_map, vec2(center.x * 5.0, instancePosition.z * 10.0 + u_time * timescale) * vec2(0.1)).r * 2.0 - 1.0;
+  float offset_y = texture2D(u_noise_map, vec2(center.y * 5.0, instancePosition.z * 10.0 + u_time * timescale) * vec2(0.1)).g * 2.0 - 1.0;
+  vec2 offset = vec2(offset_x, offset_y);
+
+  center += offset * 0.1;
   // modulate
   center = mod(center, 2.2) - 1.1;
   // center *= vec2(aspect_ratio, 1.0);
 
-  
+
   vec2 transformed_position = position.xy;
   // rotate
   transformed_position.xy = mat2(cos(u_time * timescale_rotate * instanceAngularVelocity), -sin(u_time * timescale_rotate * instanceAngularVelocity), sin(u_time * timescale_rotate * instanceAngularVelocity), cos(u_time * timescale_rotate * instanceAngularVelocity)) * transformed_position.xy;
