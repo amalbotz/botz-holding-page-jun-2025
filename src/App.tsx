@@ -7,6 +7,7 @@ import BackgroundGrid from "./components/BackgroundGrid/BackgroundGrid";
 import { useState, useRef, useEffect } from "react";
 import TitleRenderer from "./components/TitleRenderer/TitleRenderer";
 import Overlay from "./components/Overlay/Overlay";
+import styles from "./App.module.scss";
 
 function App() {
   const [isContentVisible, setIsContentVisible] = useState(false);
@@ -45,29 +46,10 @@ function App() {
         <Content />
       </Overlay>
       <Overlay isVisible={isSuperformVisible} toggle={toggleSuperform}>
-        <div
-          style={{
-            position: "relative",
-            width: "min(100vh, 100vw)",
-            aspectRatio: "4/3",
-            background: "#000",
-            overflow: "hidden",
-            pointerEvents: "none",
-          }}
-        >
+        <div className={styles.ytWrapper}>
           <iframe
             ref={iframeRef}
-            style={{
-              pointerEvents: "none",
-              position: "absolute",
-              top: "50%",
-              left: "50%",
-              transform: "translate(-50%, -50%)",
-              width: "100%",
-              height: "100%",
-              minWidth: "133.33%",
-              minHeight: "100%",
-            }}
+            className={styles.yt}
             src="https://www.youtube.com/embed/949eYdEz3Es?si=LaUgHELemZY2JtLR&amp;controls=0&amp;loop=1&amp;autoplay=1&amp;mute=1&amp;playlist=949eYdEz3Es&amp;enablejsapi=1"
             title="YouTube video player"
             frameBorder="0"
@@ -75,6 +57,13 @@ function App() {
             referrerPolicy="strict-origin-when-cross-origin"
             allowFullScreen
           />
+          <a
+            className={styles.ytCaption}
+            href="https://www.youtube.com/watch?v=949eYdEz3Es"
+            target="_blank"
+          >
+            Octopus escaping through a 1 inch diameter hole by James Wood [→]
+          </a>
         </div>
       </Overlay>
       <Header toggleContent={toggleContent} toggleSuperform={toggleSuperform} />
