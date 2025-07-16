@@ -1,5 +1,7 @@
-import vertexShader from "./shaders/vert.glsl?raw";
-import fragmentShader from "./shaders/frag.glsl?raw";
+import vertexShaderLogo from "./shaders/vert-logo.glsl?raw";
+import fragmentShaderLogo from "./shaders/frag-logo.glsl?raw";
+import vertexShaderParticle from "./shaders/vert-particle.glsl?raw";
+import fragmentShaderParticle from "./shaders/frag-particle.glsl?raw";
 import titleMap from "./title-map.png";
 import titleMapPortrait from "./title-map-portrait.png";
 import backgroundMap from "./background.jpg";
@@ -8,7 +10,6 @@ import backgroundVideo from "./background.mp4";
 import {
   type BufferInfo,
   type ProgramInfo,
-  bindFramebufferInfo,
   createProgramInfo,
   createTexture,
   drawBufferInfo,
@@ -18,6 +19,9 @@ import {
   resizeCanvasToDisplaySize,
   createTextureAsync,
   setTextureFromElement,
+  createBufferInfoFromArrays,
+  createVertexArrayInfo,
+  type VertexArrayInfo,
 } from "twgl.js";
 
 const WIDTH = 0.6666;
@@ -26,14 +30,20 @@ const RESOLUTION = [2200, 880];
 const RESOLUTION_PORTRAIT = [1297, 880];
 
 class TitleRenderer {
-  private uniforms: { [key: string]: any };
+  private gl: WebGL2RenderingContext;
+  private uniformsLogo: { [key: string]: any };
+  private uniformsParticle: { [key: string]: any };
+  private particleCount = 99;
   private startTime = Date.now();
-  private programInfo: ProgramInfo;
-  private bufferInfo: BufferInfo;
+  private programInfoLogo: ProgramInfo;
+  private bufferInfoLogo: BufferInfo;
+  private vertexArrayInfoLogo: VertexArrayInfo;
+  private programInfoParticle: ProgramInfo;
+  private bufferInfoParticle: BufferInfo;
+  private vertexArrayInfoParticle: VertexArrayInfo;
   private _width = WIDTH;
   private targetTouchOpacity = 0;
   private targetMousePosition = [-1, -1];
-  private gl: WebGL2RenderingContext;
   private loaded = false;
   private orientation =
     window.innerHeight > window.innerWidth ? "portrait" : "landscape";
@@ -49,7 +59,7 @@ class TitleRenderer {
     this.wordmarkPortrait = createTexture(this.gl, {
       src: [0, 0, 0, 0],
     });
-    this.uniforms = {
+    this.uniformsLogo = {
       u_time: this.startTime,
       u_timescale: 0.3,
       u_noise_scale: 1,
@@ -68,8 +78,69 @@ class TitleRenderer {
       u_color: [1, 0, 0],
       u_rotate_maps: 0,
     };
-    this.programInfo = createProgramInfo(gl, [vertexShader, fragmentShader]);
-    this.bufferInfo = primitives.createXYQuadBufferInfo(gl);
+    this.uniformsParticle = {
+      u_time: this.startTime,
+      u_resolution: [
+        gl.canvas.width / window.devicePixelRatio,
+        gl.canvas.height / window.devicePixelRatio,
+      ],
+    };
+    this.programInfoLogo = createProgramInfo(gl, [
+      vertexShaderLogo,
+      fragmentShaderLogo,
+    ]);
+    this.bufferInfoLogo = primitives.createXYQuadBufferInfo(gl);
+    this.vertexArrayInfoLogo = createVertexArrayInfo(
+      this.gl,
+      this.programInfoLogo,
+      this.bufferInfoLogo
+    );
+    this.programInfoParticle = createProgramInfo(gl, [
+      vertexShaderParticle,
+      fragmentShaderParticle,
+    ]);
+    // const particleArrays = { ...primitives.createXYQuadVertices() };
+
+    const quadVertices = primitives.createXYQuadVertices();
+    console.log(quadVertices);
+    this.bufferInfoParticle = createBufferInfoFromArrays(this.gl, {
+      ...quadVertices,
+      instanceScale: {
+        numComponents: 1,
+        data: new Float32Array(this.particleCount).map(
+          () => Math.random() * 0.5 + 0.5
+        ),
+        divisor: 1,
+      },
+      instancePosition: {
+        numComponents: 2,
+        data: new Float32Array(this.particleCount * 2).map(
+          () => Math.random() * 2 - 1
+        ),
+        divisor: 1,
+      },
+      instanceDirection: {
+        numComponents: 2,
+        data: new Float32Array(this.particleCount * 2).map(
+          () => Math.random() * 2 - 1
+        ),
+        divisor: 1,
+      },
+      instanceSpeed: {
+        numComponents: 1,
+        data: new Float32Array(this.particleCount).map(
+          () => Math.random() * 0.5 + 0.5
+        ),
+        divisor: 1,
+      },
+    });
+    this.vertexArrayInfoParticle = createVertexArrayInfo(
+      this.gl,
+      this.programInfoParticle,
+      this.bufferInfoParticle
+    );
+
+    // this.bufferInfoParticle = primitives.createXYQuadBufferInfo(gl);
 
     // Enable transparency and configure blending for iOS compatibility
     gl.enable(gl.BLEND);
@@ -90,9 +161,9 @@ class TitleRenderer {
     if (newOrientation !== this.orientation) {
       this.width = newOrientation === "portrait" ? WIDTH_PORTRAIT : WIDTH;
       this.orientation = newOrientation;
-      this.uniforms.u_resolution =
+      this.uniformsLogo.u_resolution =
         newOrientation === "portrait" ? RESOLUTION_PORTRAIT : RESOLUTION;
-      this.uniforms.u_map_wordmark =
+      this.uniformsLogo.u_map_wordmark =
         this.orientation === "portrait" ? this.wordmarkPortrait : this.wordmark;
     }
   }
@@ -111,7 +182,7 @@ class TitleRenderer {
     video.style.opacity = "0";
     document.body.appendChild(video);
 
-    this.uniforms.u_resolution =
+    this.uniformsLogo.u_resolution =
       this.orientation === "portrait" ? RESOLUTION_PORTRAIT : RESOLUTION;
 
     const [wordmark, wordmarkPortrait, background] = await Promise.all([
@@ -133,15 +204,15 @@ class TitleRenderer {
     this.wordmark = wordmark;
     this.wordmarkPortrait = wordmarkPortrait;
 
-    this.uniforms.u_map_wordmark =
+    this.uniformsLogo.u_map_wordmark =
       this.orientation === "portrait" ? wordmarkPortrait : wordmark;
-    this.uniforms.u_map_background = background;
+    this.uniformsLogo.u_map_background = background;
     this.loaded = true;
 
     const onVideoFrame = () => {
       setTextureFromElement(
         this.gl,
-        this.uniforms.u_map_background.texture,
+        this.uniformsLogo.u_map_background.texture,
         video,
         {
           minMag: this.gl.LINEAR,
@@ -156,7 +227,7 @@ class TitleRenderer {
 
   public onMouseMove([x, y]: [number, number]) {
     const aspectRatio =
-      this.uniforms.u_resolution[0] / this.uniforms.u_resolution[1];
+      this.uniformsLogo.u_resolution[0] / this.uniformsLogo.u_resolution[1];
 
     const displayWidth = window.innerWidth * this.width;
     const displayHeight = displayWidth / aspectRatio;
@@ -181,15 +252,15 @@ class TitleRenderer {
   }
 
   public set color(color: [number, number, number]) {
-    this.uniforms.u_color = color;
+    this.uniformsLogo.u_color = color;
   }
 
   public set opacity(opacity: number) {
-    this.uniforms.u_opacity = opacity;
+    this.uniformsLogo.u_opacity = opacity;
   }
 
   public get opacity(): number {
-    return this.uniforms.u_opacity;
+    return this.uniformsLogo.u_opacity;
   }
 
   public set width(width: number) {
@@ -201,45 +272,78 @@ class TitleRenderer {
   }
 
   public set noiseScale(scale: number) {
-    this.uniforms.u_noise_scale = scale;
+    this.uniformsLogo.u_noise_scale = scale;
   }
 
-  public render() {
-    this.uniforms.u_time = Date.now() - this.startTime;
-    if (!this.loaded) return;
+  private renderParticles(): void {
+    this.uniformsParticle.u_time = Date.now() - this.startTime;
+    this.uniformsParticle.u_resolution = [
+      this.gl.canvas.width / window.devicePixelRatio,
+      this.gl.canvas.height / window.devicePixelRatio,
+    ];
+
+    this.gl.useProgram(this.programInfoParticle.program);
+    setBuffersAndAttributes(
+      this.gl,
+      this.programInfoParticle,
+      this.vertexArrayInfoParticle
+    );
+    setUniforms(this.programInfoParticle, this.uniformsParticle);
+    drawBufferInfo(
+      this.gl,
+      this.vertexArrayInfoParticle,
+      this.gl.TRIANGLES,
+      this.vertexArrayInfoParticle.numElements,
+      0,
+      this.particleCount
+    );
+  }
+
+  private renderLogo(): void {
+    this.uniformsLogo.u_time = Date.now() - this.startTime;
+    this.uniformsLogo.u_touch_opacity = this.uniformsLogo.u_touch_opacity +=
+      (this.targetTouchOpacity - this.uniformsLogo.u_touch_opacity) * 0.02;
+    this.uniformsLogo.u_mouse_position[0] +=
+      (this.targetMousePosition[0] - this.uniformsLogo.u_mouse_position[0]) *
+      0.02;
+    this.uniformsLogo.u_mouse_position[1] +=
+      (this.targetMousePosition[1] - this.uniformsLogo.u_mouse_position[1]) *
+      0.02;
+    this.uniformsLogo.u_touch_opacity +=
+      (this.targetTouchOpacity - this.uniformsLogo.u_touch_opacity) * 0.02;
 
     const aspectRatio =
-      this.uniforms.u_resolution[0] / this.uniforms.u_resolution[1];
-    this.gl.useProgram(this.programInfo.program);
-    setBuffersAndAttributes(this.gl, this.programInfo, this.bufferInfo);
-    setUniforms(this.programInfo, this.uniforms);
-    resizeCanvasToDisplaySize(
-      this.gl.canvas as HTMLCanvasElement,
-      window.devicePixelRatio
-    );
-    bindFramebufferInfo(this.gl, null);
+      this.uniformsLogo.u_resolution[0] / this.uniformsLogo.u_resolution[1];
     const displayWidth = this.gl.canvas.width * this.width;
     const displayHeight = displayWidth / aspectRatio;
-
-    this.uniforms.u_touch_opacity = this.uniforms.u_touch_opacity +=
-      (this.targetTouchOpacity - this.uniforms.u_touch_opacity) * 0.02;
-
-    this.uniforms.u_mouse_position[0] +=
-      (this.targetMousePosition[0] - this.uniforms.u_mouse_position[0]) * 0.02;
-
-    this.uniforms.u_mouse_position[1] +=
-      (this.targetMousePosition[1] - this.uniforms.u_mouse_position[1]) * 0.02;
-
-    this.uniforms.u_touch_opacity +=
-      (this.targetTouchOpacity - this.uniforms.u_touch_opacity) * 0.02;
-
     const paddingX = (this.gl.canvas.width - displayWidth) * 0.5;
     const paddingY =
       (this.gl.canvas.height - displayHeight) *
       (this.orientation === "portrait" ? 0.58 : 0.5);
     this.gl.viewport(paddingX, paddingY, displayWidth, displayHeight);
+
+    this.gl.useProgram(this.programInfoLogo.program);
+    setBuffersAndAttributes(
+      this.gl,
+      this.programInfoLogo,
+      this.vertexArrayInfoLogo
+    );
+    setUniforms(this.programInfoLogo, this.uniformsLogo);
+    drawBufferInfo(this.gl, this.vertexArrayInfoLogo);
+  }
+
+  public render() {
+    if (!this.loaded) return;
+
+    resizeCanvasToDisplaySize(
+      this.gl.canvas as HTMLCanvasElement,
+      window.devicePixelRatio
+    );
+    this.gl.viewport(0, 0, this.gl.canvas.width, this.gl.canvas.height);
     this.gl.clear(this.gl.COLOR_BUFFER_BIT); // Clear with the transparent color
-    drawBufferInfo(this.gl, this.bufferInfo);
+
+    this.renderParticles();
+    this.renderLogo();
   }
 }
 
