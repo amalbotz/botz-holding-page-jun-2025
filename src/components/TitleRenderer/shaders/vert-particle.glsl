@@ -47,6 +47,7 @@ void main() {
   center += velocity * u_time * timescale;
   // modulate
   center = mod(center, 2.2) - 1.1;
+  // center *= vec2(aspect_ratio, 1.0);
 
   
   vec2 transformed_position = position.xy;
@@ -54,10 +55,11 @@ void main() {
   transformed_position.xy = mat2(cos(u_time * timescale_rotate * instanceAngularVelocity), -sin(u_time * timescale_rotate * instanceAngularVelocity), sin(u_time * timescale_rotate * instanceAngularVelocity), cos(u_time * timescale_rotate * instanceAngularVelocity)) * transformed_position.xy;
   // scale
   transformed_position *= scale;
-  // translate
-  transformed_position.xy += center;
   // make square
   transformed_position.xy *= vec2(1.0, aspect_ratio);
+  
+  // translate
+  transformed_position.xy += center;
  
   opacity = 0.5 + perspective_scale * 0.5;
 

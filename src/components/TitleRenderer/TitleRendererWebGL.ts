@@ -36,10 +36,7 @@ class TitleRenderer {
   private gl: WebGL2RenderingContext;
   private uniformsLogo: { [key: string]: any };
   private uniformsParticle: { [key: string]: any };
-  private particleCount = Math.min(
-    Math.round(window.innerWidth * window.innerHeight * 0.00025),
-    500
-  );
+  private particleCount = 0;
   private startTime = Date.now();
   private programInfoLogo: ProgramInfo;
   private bufferInfoLogo: BufferInfo;
@@ -118,6 +115,34 @@ class TitleRenderer {
     ]);
     // const particleArrays = { ...primitives.createXYQuadVertices() };
 
+    const [bufferInfoParticle, vertexArrayInfoParticle] =
+      this.createParticleArrays();
+    this.bufferInfoParticle = bufferInfoParticle;
+    this.vertexArrayInfoParticle = vertexArrayInfoParticle;
+
+    // this.bufferInfoParticle = primitives.createXYQuadBufferInfo(gl);
+
+    // Enable transparency and configure blending for iOS compatibility
+    gl.enable(gl.BLEND);
+    gl.blendFunc(gl.SRC_ALPHA, gl.ONE_MINUS_SRC_ALPHA);
+    gl.clearColor(0, 0, 0, 0); // Set clear color with transparent alpha
+
+    this.width = this.orientation === "portrait" ? WIDTH_PORTRAIT : WIDTH;
+    this.createTextures();
+
+    this.onResize = this.onResize.bind(this);
+    window.addEventListener("resize", this.onResize);
+  }
+
+  private createParticleArrays() {
+    this.particleCount = Math.max(
+      Math.min(
+        Math.round(window.innerWidth * window.innerHeight * 0.00025),
+        500
+      ),
+      100
+    );
+
     const quadVertices = primitives.createXYQuadVertices();
     this.bufferInfoParticle = createBufferInfoFromArrays(this.gl, {
       ...quadVertices,
@@ -163,7 +188,7 @@ class TitleRenderer {
             case 0:
               return 0.9 + Math.random() * 0.1;
             case 1:
-              return 0.8 + Math.random() * 0.2;
+              return 0.9 + Math.random() * 0.1;
             case 2:
               return 0.6 + Math.random() * 0.15;
             default:
@@ -179,23 +204,14 @@ class TitleRenderer {
       this.bufferInfoParticle
     );
 
-    // this.bufferInfoParticle = primitives.createXYQuadBufferInfo(gl);
-
-    // Enable transparency and configure blending for iOS compatibility
-    gl.enable(gl.BLEND);
-    gl.blendFunc(gl.SRC_ALPHA, gl.ONE_MINUS_SRC_ALPHA);
-    gl.clearColor(0, 0, 0, 0); // Set clear color with transparent alpha
-
-    this.width = this.orientation === "portrait" ? WIDTH_PORTRAIT : WIDTH;
-    this.createTextures();
-
-    this.onResize = this.onResize.bind(this);
-    window.addEventListener("resize", this.onResize);
+    return [this.bufferInfoParticle, this.vertexArrayInfoParticle];
   }
 
   private onResize() {
     const newOrientation =
       window.innerHeight > window.innerWidth ? "portrait" : "landscape";
+
+    this.createParticleArrays();
 
     if (newOrientation !== this.orientation) {
       this.width = newOrientation === "portrait" ? WIDTH_PORTRAIT : WIDTH;
