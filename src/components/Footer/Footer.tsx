@@ -2,7 +2,7 @@ import { useState, useEffect, useRef } from "react";
 import styles from "./Footer.module.scss";
 import copy from "../../data/copy.json";
 
-const Footer = () => {
+const Footer = ({ toggleCookiePolicy }: { toggleCookiePolicy: () => void }) => {
   const [date, setDate] = useState(new Date());
   const [position, setPosition] = useState({ x: 0, y: 0 });
   const isTouchingRef = useRef(false);
@@ -80,6 +80,7 @@ const Footer = () => {
           <div></div>
         </div>
         <nav>
+          <button onClick={toggleCookiePolicy}>[ Cookie Policy ]</button>
           {copy.footer.map((item, index) => (
             <a
               key={index}

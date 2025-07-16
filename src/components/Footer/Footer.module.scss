@@ -39,14 +39,17 @@ hr {
 .root nav {
   display: flex;
   gap: 2ch;
+  align-items: center;
 
   @media (orientation: portrait) {
     justify-content: center;
   }
 }
 
-nav a {
+.root nav a,
+.root nav button {
   @include typo--small;
+  line-height: 1;
 }
 
 .ruler {

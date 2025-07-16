@@ -12,16 +12,25 @@ import styles from "./App.module.scss";
 function App() {
   const [isContentVisible, setIsContentVisible] = useState(false);
   const [isSuperformVisible, setIsSuperformVisible] = useState(false);
+  const [isCookiePolicyVisible, setIsCookiePolicyVisible] = useState(false);
   const iframeRef = useRef<HTMLIFrameElement>(null);
 
   const toggleContent = (shouldOpen?: boolean) => {
     setIsSuperformVisible(false);
+    setIsCookiePolicyVisible(false);
     setIsContentVisible(shouldOpen ?? !isContentVisible);
   };
 
   const toggleSuperform = (shouldOpen?: boolean) => {
     setIsContentVisible(false);
+    setIsCookiePolicyVisible(false);
     setIsSuperformVisible(shouldOpen ?? !isSuperformVisible);
+  };
+
+  const toggleCookiePolicy = (shouldOpen?: boolean) => {
+    setIsContentVisible(false);
+    setIsSuperformVisible(false);
+    setIsCookiePolicyVisible(shouldOpen ?? !isCookiePolicyVisible);
   };
 
   useEffect(() => {
@@ -41,7 +50,7 @@ function App() {
     <>
       <TitleRenderer isObscured={isContentVisible} />
       <BackgroundGrid maxSpeed={100} />
-      <Footer />
+      <Footer toggleCookiePolicy={toggleCookiePolicy} />
       <Overlay isVisible={isContentVisible} toggle={toggleContent}>
         <Content />
       </Overlay>
@@ -65,6 +74,9 @@ function App() {
             Octopus escaping through a 1 inch diameter hole by James Wood [→]
           </a>
         </div>
+      </Overlay>
+      <Overlay isVisible={isCookiePolicyVisible} toggle={toggleCookiePolicy}>
+        <p>This is the cookie stuff</p>
       </Overlay>
       <Header toggleContent={toggleContent} toggleSuperform={toggleSuperform} />
       <CustomCursor />
