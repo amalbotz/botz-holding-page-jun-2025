@@ -24,3 +24,7 @@ h1 {
 nav button {
   @include typo--large;
 }
+nav {
+  display: flex;
+  gap: 2ch;
+}
