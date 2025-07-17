@@ -150,9 +150,8 @@ class TitleRenderer {
       instanceOrigin: {
         numComponents: 3,
         data: new Float32Array(this.particleCount * 3).map((_value, index) => {
-          if (index == 2) {
-            // depth, make it further and weighted towards further away
-            return easeOutExpo(Math.random());
+          if (index % 3 == 2) {
+            return Math.random();
           }
           return Math.random() * 2 - 1;
         }),

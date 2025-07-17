@@ -17,13 +17,22 @@ varying float opacity;
 varying vec3 v_color;
 uniform float u_sprite_count;
 
-float TIMESCALE = 0.00002;
+float TIMESCALE = 0.00005;
 float TIMESCALE_ROTATE = 0.0001;
-float WIDTH_PX = 5.0;
+float WIDTH_PX = 12.0;
 vec2 DIRECTION = vec2(0.0, 1.0);
 
 vec2 OFFSET_FREQ = vec2(0.01,0.1);
 vec2 OFFSET_SCALE = vec2(0.2,0.1);
+
+float easeOutExpo(float t) {
+  // return t;
+  return t == 1.0 ? 1.0 : 1.0 - pow(2.0, -10.0 * t);
+}
+
+float easeOutQuart(float t) {
+  return 1.0 - pow(t - 1.0, 4.0);
+}
 
 void main() {
   float sprite_subdivisions = sqrt(u_sprite_count);
@@ -34,7 +43,9 @@ void main() {
   float aspect_ratio = u_resolution.x / u_resolution.y;
   float base_scale = WIDTH_PX / u_resolution.x;
 
-  float perspective_scale = 1.0 - instanceOrigin.z;
+  float z = easeOutQuart(instanceOrigin.z);
+
+  float perspective_scale = 1.0 - z;
   float scale = perspective_scale * base_scale;
 
   vec2 center = instanceOrigin.xy;
