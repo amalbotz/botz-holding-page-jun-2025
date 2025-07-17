@@ -23,11 +23,11 @@ void main() {
   
   v_texcoord = texcoord / sprite_subdivisions + vec4(sprite_column / sprite_subdivisions, sprite_row / sprite_subdivisions, 0.0,0.0);
 
-  float width_px = 22.0;
+  float width_px = 10.0;
   float aspect_ratio = u_resolution.x / u_resolution.y;
   float base_scale = width_px / u_resolution.x;
 
-  float perspective_scale = 1.0 - ((instancePosition.z + 1.0) / 2.0);
+  float perspective_scale = instancePosition.z;
   float scale = perspective_scale * base_scale;
   // scale = 1.0;
 
@@ -69,6 +69,10 @@ void main() {
   opacity = 0.5 + perspective_scale * 0.5;
 
   v_color = instanceColor;
+
+  // transformed_position = position.xy;
+  // transformed_position *= 0.3;
+  // transformed_position.xy += center;
 
   gl_Position = vec4(transformed_position, 1.0, position.w);
 }

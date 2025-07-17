@@ -32,6 +32,9 @@ const RESOLUTION = [2200, 880];
 const RESOLUTION_PORTRAIT = [1297, 880];
 const SPRITE_COUNT = 9;
 
+const easeOutQuad = (t: number) => t * (2 - t);
+const easeOutQuart = (t: number) => 1 - (1 - t) ** 4;
+
 class TitleRenderer {
   private gl: WebGL2RenderingContext;
   private uniformsLogo: { [key: string]: any };
@@ -135,12 +138,8 @@ class TitleRenderer {
   }
 
   private createParticleArrays() {
-    this.particleCount = Math.max(
-      Math.min(
-        Math.round(window.innerWidth * window.innerHeight * 0.00025),
-        500
-      ),
-      100
+    this.particleCount = Math.round(
+      window.innerWidth * window.innerHeight * 0.002
     );
 
     const quadVertices = primitives.createXYQuadVertices();
@@ -148,9 +147,12 @@ class TitleRenderer {
       ...quadVertices,
       instancePosition: {
         numComponents: 3,
-        data: new Float32Array(this.particleCount * 3).map(
-          () => Math.random() * 2 - 1
-        ),
+        data: new Float32Array(this.particleCount * 3).map((_value, index) => {
+          if (index == 2) {
+            return easeOutQuart(Math.random());
+          }
+          return Math.random() * 2 - 1;
+        }),
         divisor: 1,
       },
       instanceDirection: {
@@ -184,6 +186,7 @@ class TitleRenderer {
       instanceColor: {
         numComponents: 3,
         data: new Float32Array(this.particleCount * 3).map((_, index) => {
+          return 1;
           switch (index % 3) {
             case 0:
               return 0.9 + Math.random() * 0.1;
