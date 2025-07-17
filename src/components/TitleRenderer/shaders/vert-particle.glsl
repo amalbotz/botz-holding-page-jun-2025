@@ -49,7 +49,6 @@ void main() {
   
   // modulate
 
-  // center.y = mod(center.y, 2.2) - 1.0;
   center.y = mod(center.y + 1.1, 2.2) - 1.1;
   // center *= vec2(aspect_ratio, 1.0);
 
