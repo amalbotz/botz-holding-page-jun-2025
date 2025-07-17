@@ -51,7 +51,7 @@ void main() {
 
   center += offset * 0.1;
   // modulate
-  center = mod(center, 2.2) - 1.1;
+  center = mod(center, 2.0) - 1.0;
   // center *= vec2(aspect_ratio, 1.0);
 
 

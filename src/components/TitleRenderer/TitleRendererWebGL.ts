@@ -139,7 +139,7 @@ class TitleRenderer {
 
   private createParticleArrays() {
     this.particleCount = Math.round(
-      window.innerWidth * window.innerHeight * 0.002
+      window.innerWidth * window.innerHeight * 0.001
     );
 
     const quadVertices = primitives.createXYQuadVertices();
