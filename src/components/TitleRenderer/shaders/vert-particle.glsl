@@ -2,7 +2,8 @@ precision mediump float;
 
 attribute vec4 position;
 attribute vec4 texcoord;
-attribute vec3 instancePosition;
+attribute vec3 instanceOrigin;
+attribute float instanceSeed;
 attribute float instanceSpeed;
 attribute float instanceAngularVelocity;
 attribute float instanceSpriteIndex;
@@ -16,48 +17,46 @@ varying float opacity;
 varying vec3 v_color;
 uniform float u_sprite_count;
 
+float TIMESCALE = 0.00002;
+float TIMESCALE_ROTATE = 0.0001;
+float WIDTH_PX = 5.0;
+vec2 DIRECTION = vec2(0.0, 1.0);
+
+vec2 OFFSET_FREQ = vec2(0.01,0.1);
+vec2 OFFSET_SCALE = vec2(0.2,0.1);
+
 void main() {
   float sprite_subdivisions = sqrt(u_sprite_count);
   float sprite_row = floor(instanceSpriteIndex / sprite_subdivisions);
   float sprite_column = mod(instanceSpriteIndex, sprite_subdivisions);
-  
   v_texcoord = texcoord / sprite_subdivisions + vec4(sprite_column / sprite_subdivisions, sprite_row / sprite_subdivisions, 0.0,0.0);
 
-  float width_px = 10.0;
   float aspect_ratio = u_resolution.x / u_resolution.y;
-  float base_scale = width_px / u_resolution.x;
+  float base_scale = WIDTH_PX / u_resolution.x;
 
-  float perspective_scale = instancePosition.z;
+  float perspective_scale = 1.0 - instanceOrigin.z;
   float scale = perspective_scale * base_scale;
-  // scale = 1.0;
 
-  vec2 center = instancePosition.xy;
+  vec2 center = instanceOrigin.xy;
 
-  float noise_scale_xy = 0.01;
-  float noise_scale_z = 0.5;
-  float timescale = 0.00002;
-  float timescale_rotate = 0.0001;
-  // normalize direction§
-  float direction_x = texture2D(u_noise_map, instancePosition.xz * vec2(noise_scale_xy, noise_scale_z)).r * 2.0 - 1.0;
-  float direction_y = texture2D(u_noise_map, instancePosition.yz * vec2(noise_scale_xy * aspect_ratio, noise_scale_z)).r * 2.0 - 1.0;
-
-  vec2 velocity = normalize(vec2(direction_x, direction_y)) * instanceSpeed * perspective_scale;
-   
    // animate
-  center += velocity * u_time * timescale;
-  float offset_x = texture2D(u_noise_map, vec2(center.x * 5.0, instancePosition.z * 10.0 + u_time * timescale) * vec2(0.1)).r * 2.0 - 1.0;
-  float offset_y = texture2D(u_noise_map, vec2(center.y * 5.0, instancePosition.z * 10.0 + u_time * timescale) * vec2(0.1)).g * 2.0 - 1.0;
-  vec2 offset = vec2(offset_x, offset_y);
+  center += DIRECTION * instanceSpeed * perspective_scale * u_time * TIMESCALE;
+  
+  vec2 offset = texture2D(u_noise_map, center * OFFSET_FREQ).rg * 2.0 - 1.0;
 
-  center += offset * 0.1;
+  // vec2 offset = vec2(offset_x, offset_y) * OFFSET_SCALE;
+  center += offset * OFFSET_SCALE;
+  
   // modulate
-  center = mod(center, 2.0) - 1.0;
+
+  // center.y = mod(center.y, 2.2) - 1.0;
+  center.y = mod(center.y + 1.1, 2.2) - 1.1;
   // center *= vec2(aspect_ratio, 1.0);
 
 
   vec2 transformed_position = position.xy;
   // rotate
-  transformed_position.xy = mat2(cos(u_time * timescale_rotate * instanceAngularVelocity), -sin(u_time * timescale_rotate * instanceAngularVelocity), sin(u_time * timescale_rotate * instanceAngularVelocity), cos(u_time * timescale_rotate * instanceAngularVelocity)) * transformed_position.xy;
+  transformed_position.xy = mat2(cos(u_time * TIMESCALE_ROTATE * instanceAngularVelocity), -sin(u_time * TIMESCALE_ROTATE * instanceAngularVelocity), sin(u_time * TIMESCALE_ROTATE * instanceAngularVelocity), cos(u_time * TIMESCALE_ROTATE * instanceAngularVelocity)) * transformed_position.xy;
   // scale
   transformed_position *= scale;
   // make square

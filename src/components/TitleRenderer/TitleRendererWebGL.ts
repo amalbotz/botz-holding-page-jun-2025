@@ -34,6 +34,8 @@ const SPRITE_COUNT = 9;
 
 const easeOutQuad = (t: number) => t * (2 - t);
 const easeOutQuart = (t: number) => 1 - (1 - t) ** 4;
+const easeInQuart = (t: number) => t ** 4;
+const easeOutExpo = (t: number) => (t == 1 ? 1 : 1 - Math.pow(2, -10 * t));
 
 class TitleRenderer {
   private gl: WebGL2RenderingContext;
@@ -145,23 +147,22 @@ class TitleRenderer {
     const quadVertices = primitives.createXYQuadVertices();
     this.bufferInfoParticle = createBufferInfoFromArrays(this.gl, {
       ...quadVertices,
-      instancePosition: {
+      instanceOrigin: {
         numComponents: 3,
         data: new Float32Array(this.particleCount * 3).map((_value, index) => {
           if (index == 2) {
-            return easeOutQuart(Math.random());
+            // depth, make it further and weighted towards further away
+            return easeOutExpo(Math.random());
           }
           return Math.random() * 2 - 1;
         }),
         divisor: 1,
       },
-      instanceDirection: {
-        numComponents: 2,
-        data: new Float32Array(this.particleCount * 2).map(
-          () => Math.random() * 2 - 1
-        ),
+      instanceSeed: {
+        numComponents: 1,
+        data: new Float32Array(this.particleCount).map(() => Math.random()),
         divisor: 1,
-      }, // normalized in shader
+      },
       instanceSpeed: {
         numComponents: 1,
         data: new Float32Array(this.particleCount).map(
@@ -169,17 +170,17 @@ class TitleRenderer {
         ),
         divisor: 1,
       },
-      instanceSpriteIndex: {
-        numComponents: 1,
-        data: new Float32Array(this.particleCount).map(() =>
-          Math.floor(Math.random() * SPRITE_COUNT)
-        ),
-        divisor: 1,
-      },
       instanceAngularVelocity: {
         numComponents: 1,
         data: new Float32Array(this.particleCount).map(
           () => Math.random() * 2 - 1
+        ),
+        divisor: 1,
+      },
+      instanceSpriteIndex: {
+        numComponents: 1,
+        data: new Float32Array(this.particleCount).map(() =>
+          Math.floor(Math.random() * SPRITE_COUNT)
         ),
         divisor: 1,
       },
