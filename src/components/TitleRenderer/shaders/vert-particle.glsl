@@ -43,7 +43,7 @@ void main() {
   float aspect_ratio = u_resolution.x / u_resolution.y;
   float base_scale = WIDTH_PX / u_resolution.x;
 
-  float z = easeOutQuart(instanceOrigin.z);
+  float z = easeOutExpo(instanceOrigin.z);
 
   float perspective_scale = 1.0 - z;
   float scale = perspective_scale * base_scale;
