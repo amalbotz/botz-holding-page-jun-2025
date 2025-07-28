@@ -56,16 +56,18 @@ function App() {
       </Overlay>
       <Overlay isVisible={isSuperformVisible} toggle={toggleSuperform}>
         <div className={styles.ytWrapper}>
-          <iframe
-            ref={iframeRef}
-            className={styles.yt}
-            src="https://www.youtube.com/embed/949eYdEz3Es?si=LaUgHELemZY2JtLR&amp;controls=0&amp;loop=1&amp;autoplay=1&amp;mute=1&amp;playlist=949eYdEz3Es&amp;enablejsapi=1"
-            title="YouTube video player"
-            frameBorder="0"
-            allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
-            referrerPolicy="strict-origin-when-cross-origin"
-            allowFullScreen
-          />
+          <div className={styles.ytAspectRatio}>
+            <iframe
+              ref={iframeRef}
+              className={styles.yt}
+              src="https://www.youtube.com/embed/949eYdEz3Es?si=LaUgHELemZY2JtLR&amp;controls=0&amp;loop=1&amp;autoplay=1&amp;mute=1&amp;playlist=949eYdEz3Es&amp;enablejsapi=1"
+              title="YouTube video player"
+              frameBorder="0"
+              allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
+              referrerPolicy="strict-origin-when-cross-origin"
+              allowFullScreen
+            />
+          </div>
           <a
             className={styles.ytCaption}
             href="https://www.youtube.com/watch?v=949eYdEz3Es"

@@ -34,6 +34,11 @@ float easeOutQuart(float t) {
   return 1.0 - pow(t - 1.0, 4.0);
 }
 
+float easeOutQuint(float t) {
+  return 1.0 - pow(t - 1.0, 5.0);
+}
+
+
 void main() {
   float sprite_subdivisions = sqrt(u_sprite_count);
   float sprite_row = floor(instanceSpriteIndex / sprite_subdivisions);
