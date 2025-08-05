@@ -1,5 +1,5 @@
 .root {
-  max-width: 80ch;
+  max-width: 25rem;
   text-align: left;
 }
 
@@ -7,19 +7,16 @@
   h2,
   h3,
   h4,
+  ul,
+  ol,
   p {
     margin: 1em 0;
+    font-size: 0.625rem;
+    line-height: 1em;
+    letter-spacing: 0.03em;
   }
 }
 
 .root section {
-  margin: 3em 0;
-}
-
-.root h2 {
-  font-size: 2em;
-}
-
-.root h3 {
-  font-size: 1.5em;
+  margin: 1em 0;
 }
