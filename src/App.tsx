@@ -8,6 +8,7 @@ import { useState, useRef, useEffect } from "react";
 import TitleRenderer from "./components/TitleRenderer/TitleRenderer";
 import Overlay from "./components/Overlay/Overlay";
 import styles from "./App.module.scss";
+import CookiesDisclaimer from "./components/CookiesDisclaimer/CookiesDisclaimer";
 
 function App() {
   const [isContentVisible, setIsContentVisible] = useState(false);
@@ -78,7 +79,7 @@ function App() {
         </div>
       </Overlay>
       <Overlay isVisible={isCookiePolicyVisible} toggle={toggleCookiePolicy}>
-        <p>This is the cookie stuff</p>
+        <CookiesDisclaimer />
       </Overlay>
       <Header toggleContent={toggleContent} toggleSuperform={toggleSuperform} />
       <CustomCursor />

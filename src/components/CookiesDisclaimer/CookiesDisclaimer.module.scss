@@ -1,0 +1,25 @@
+.root {
+  max-width: 80ch;
+  text-align: left;
+}
+
+.root {
+  h2,
+  h3,
+  h4,
+  p {
+    margin: 1em 0;
+  }
+}
+
+.root section {
+  margin: 3em;
+}
+
+.root h2 {
+  font-size: 2em;
+}
+
+.root h3 {
+  font-size: 1.5em;
+}

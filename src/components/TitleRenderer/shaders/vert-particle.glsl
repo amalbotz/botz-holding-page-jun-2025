@@ -19,7 +19,7 @@ uniform float u_sprite_count;
 
 float TIMESCALE = 0.00005;
 float TIMESCALE_ROTATE = 0.0001;
-float WIDTH_PX = 12.0;
+float WIDTH_PX = 6.0;
 vec2 DIRECTION = vec2(0.0, 1.0);
 
 vec2 OFFSET_FREQ = vec2(0.01,0.1);
